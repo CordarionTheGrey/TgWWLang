@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:schema xmlns:s="http://www.w3.org/2001/XMLSchema">
+  <s:simpleType name="true">
+    <s:restriction base="s:string">
+      <s:enumeration value="true" />
+    </s:restriction>
+  </s:simpleType>
+
+  <s:element name="strings">
+    <s:complexType>
+      <s:sequence>
+        <s:element name="language">
+          <s:complexType>
+            <s:attribute name="name" type="s:string" use="required" />
+            <s:attribute name="base" type="s:string" use="required" />
+            <s:attribute name="variant" type="s:string" use="required" />
+            <s:attribute name="owner" type="s:string" />
+            <s:attribute name="code" type="s:string" />
+            <s:attribute name="isDefault" type="true" />
+          </s:complexType>
+        </s:element>
+
+        <s:element name="string" maxOccurs="unbounded">
+          <s:complexType>
+            <s:sequence>
+              <s:element name="value" minOccurs="0" maxOccurs="unbounded" type="s:string" />
+            </s:sequence>
+
+            <s:attribute name="key" type="s:string" use="required" />
+            <s:attribute name="deprecated" type="true" />
+            <s:attribute name="isgif" type="true" />
+          </s:complexType>
+        </s:element>
+      </s:sequence>
+    </s:complexType>
+  </s:element>
+</s:schema>

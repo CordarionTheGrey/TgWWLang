@@ -16,7 +16,9 @@ Options:
     -h, --help           Show this message.
     --model <langfile>   The reference langfile (English.xml).
     --base <langfile>    A langfile where additional data is taken from.
-    -i, --indent <size>  Size of indentation (`t` is allowed). [default: 2]
+    -i, --indent <size>  Size of indentation. Prepend `-` to not indent direct
+                         children of the root. Append `t` to indent with tabs.
+                         [default: 2]
     --move-comments      Move comments into corresponding `<string>` tags.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --reorder            Reorder strings to match the base langfile.
@@ -59,12 +61,10 @@ def error(msg):
 
 
 def parse_indentation_spec(spec):
-    if spec == 't':
-        return '\t'
-    m = re.fullmatch(r"(\d+)(t?)", spec, re.A)
-    if m is None:
+    m = re.fullmatch(r"-?((\d*)(t?))", spec, re.A)
+    if m is None or not m.group(1):
         raise ValueError("Invalid indentation spec: `%s`" % spec)
-    return int(m.group(1)) * ('\t' if m.group(2) else ' ')
+    return spec[0] == '-', int(m.group(2) or 1) * ('\t' if m.group(3) else ' ')
 
 
 def transform_args(args):
@@ -243,6 +243,26 @@ def check_missing_strings(lang, model):
         info("%s missing strings." % total if total != 1 else "1 missing string.")
 
 
+def reformat(root, flat, indentation):
+    cache = ['\n', '\n', '\n']
+
+    def recurse(node, level):
+        level += 1
+        if len(node) > 0:
+            if level == len(cache):
+                cache.append(cache[-1] + indentation)
+            text = node.text
+            if not text or text.isspace():
+                node.text = cache[level]
+            for child in node:
+                recurse(child, level)
+        text = node.tail
+        if not text or text.isspace():
+            node.tail = cache[level - (2 if node.getnext() is None else 1)]
+
+    recurse(root, 2 - flat)
+
+
 def main():
     # Parse arguments.
     try:
@@ -279,10 +299,21 @@ def main():
         if base is not None and base.filename != model.filename:
             check_available_strings(base, model)
         check_available_strings(lang, model)
-        check_missing_strings(lang, model)
+        check_missing_strings(base if args["--copy-missing"] else lang, model)
 
     if args["update"]:
-        raise NotImplementedError
+        if args["--move-comments"]:
+            raise NotImplementedError
+        if args["--assign-attributes"]:
+            raise NotImplementedError
+        if args["--reorder"]:
+            raise NotImplementedError
+        if args["--copy-missing"]:
+            raise NotImplementedError
+        reformat(lang.dom.getroot(), *args["--indent"])
+        Path(args["<langfile>"]).write_bytes(
+            b'<?xml version="1.0" encoding="utf-8"?>\n' + etree.tostring(lang.dom, encoding="utf-8")
+        )
 
 
 if __name__ == "__main__":

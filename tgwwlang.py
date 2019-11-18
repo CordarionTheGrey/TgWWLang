@@ -243,6 +243,30 @@ def check_missing_strings(lang, model):
         info("%s missing strings." % total if total != 1 else "1 missing string.")
 
 
+def move_comments(root):
+    comments = [ ]
+    node = root[0]
+    while True:
+        # Find the first comment that is a direct child of the root.
+        for comment in node.itersiblings(etree.Comment):
+            break
+        else: # No more comments left.
+            return
+        # Find the first `<string>` that follows it, collecting all comments between them.
+        for node in comment.itersiblings(etree.Comment, "string"):
+            if node.tag == "string":
+                break
+            comments.append(node)
+        else: # No `<string>` found.
+            return
+        # Reattach comments to that `<string>`.
+        node.insert(0, comment)
+        for other in comments:
+            comment.addnext(other)
+            comment = other
+        comments.clear()
+
+
 def reformat(root, flat, indentation):
     cache = ['\n', '\n', '\n']
 
@@ -301,9 +325,10 @@ def main():
         check_available_strings(lang, model)
         check_missing_strings(base if args["--copy-missing"] else lang, model)
 
+    # Mutate the langfile.
     if args["update"]:
         if args["--move-comments"]:
-            raise NotImplementedError
+            move_comments(lang.dom.getroot())
         if args["--assign-attributes"]:
             raise NotImplementedError
         if args["--reorder"]:

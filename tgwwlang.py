@@ -8,7 +8,7 @@ Usage:
     tgwwlang.py update
         [-i <indent>] [--move-comments] [--no-backup]
         [--model <langfile>] [--assign-attributes]
-        [(--base <langfile> [--reorder] [--copy-missing])]
+        [(--base <langfile> [--reorder] [--add-missing])]
         [--] <langfile>
     tgwwlang.py -h
 
@@ -19,11 +19,11 @@ Options:
     -i, --indent <size>  Size of indentation. Prepend `-` to not indent direct
                          children of the root. Append `t` to indent with tabs.
                          [default: 2]
-    --move-comments      Move comments into corresponding `<string>` tags.
+    --move-comments      Move external comments into `<string>` tags.
     --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --reorder            Reorder strings to match the base langfile.
-    --copy-missing       Copy missing strings from the base langfile.
+    --add-missing        Copy missing strings from the base langfile.
 """
 
 import collections
@@ -273,8 +273,8 @@ def move_comments(root):
         comments.clear()
 
 
-def modify_strings(lang, base, model, *, reorder, copy_missing):
-    if not reorder and not copy_missing:
+def modify_strings(lang, base, model, *, reorder, add_missing):
+    if not reorder and not add_missing:
         return
     root = lang.dom.getroot()
     for (key, deprecated), base_string in base.strings.items():
@@ -285,7 +285,7 @@ def modify_strings(lang, base, model, *, reorder, copy_missing):
         if string is not None:
             if reorder:
                 root.append(string.dom)
-        elif copy_missing and not deprecated and model_deprecated != Deprecated.TRUE:
+        elif add_missing and not deprecated and model_deprecated != Deprecated.TRUE:
             info('%s: Adding "%s".' % (lang.filename, key))
             string = lang.strings[key, False] = copy.deepcopy(base_string)
             lang.deprecated_summary[key] = \
@@ -366,7 +366,7 @@ def main():
         if base is not None and base.filename != model.filename:
             check_available_strings(base, model)
         check_available_strings(lang, model)
-        check_missing_strings(base if args["--copy-missing"] else lang, model)
+        check_missing_strings(base if args["--add-missing"] else lang, model)
 
     if args["update"]:
         # Mutate the langfile.
@@ -376,7 +376,7 @@ def main():
             modify_strings(
                 lang, base, model,
                 reorder=args["--reorder"],
-                copy_missing=args["--copy-missing"],
+                add_missing=args["--add-missing"],
             )
         if args["--assign-attributes"]:
             assign_attributes(lang, model)

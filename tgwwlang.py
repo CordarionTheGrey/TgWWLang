@@ -11,9 +11,11 @@ Usage:
         [(--base <langfile> [--reorder] [--add-missing])]
         [--] <langfile>
     tgwwlang.py -h
+    tgwwlang.py -V
 
 Options:
     -h, --help           Show this message.
+    -V, --version        Show version number.
     --model <langfile>   The reference langfile (English.xml).
     --base <langfile>    A langfile where additional data is taken from.
     -i, --indent <size>  Size of indentation. Prepend `-` to not indent direct
@@ -38,6 +40,8 @@ import docopt
 from   lxml import etree
 import schema
 
+
+__version__ = "0.1.0"
 
 SCHEMA_PATH = Path(__file__).with_name("TgWWLang.xsd")
 
@@ -333,7 +337,7 @@ def reformat(root, flat, indentation):
 def main():
     # Parse arguments.
     try:
-        args = transform_args(docopt.docopt(__doc__))
+        args = transform_args(docopt.docopt(__doc__, version="tgwwlang.py v%s" % __version__))
     except docopt.DocoptExit as e:
         print(e, file=sys.stderr)
         sys.exit(2)

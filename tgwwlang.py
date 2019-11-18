@@ -26,6 +26,7 @@ Options:
 """
 
 import collections
+import copy
 import enum
 from   pathlib import Path
 import os.path
@@ -267,6 +268,26 @@ def move_comments(root):
         comments.clear()
 
 
+def modify_strings(lang, base, model, *, reorder, copy_missing):
+    if not reorder and not copy_missing:
+        return
+    root = lang.dom.getroot()
+    for (key, deprecated), base_string in base.strings.items():
+        model_deprecated = model.deprecated_summary.get(key, Deprecated.TRUE)
+        string = lang.strings.get((key, deprecated))
+        if string is None and model_deprecated != Deprecated.BOTH:
+            string = lang.strings.get((key, not deprecated))
+        if string is not None:
+            if reorder:
+                root.append(string.dom)
+        elif copy_missing and not deprecated and model_deprecated != Deprecated.TRUE:
+            info('%s: Adding "%s".' % (lang.filename, key))
+            string = lang.strings[key, False] = copy.deepcopy(base_string)
+            lang.deprecated_summary[key] = \
+                Deprecated["BOTH" if key in lang.deprecated_summary else "FALSE"]
+            root.append(string.dom)
+
+
 def assign_attributes(lang, model):
     # HACK: We do not modify our data structures here except DOM.
     for (key, deprecated), string in lang.strings.items():
@@ -346,12 +367,14 @@ def main():
     if args["update"]:
         if args["--move-comments"]:
             move_comments(lang.dom.getroot())
+        if base is not None:
+            modify_strings(
+                lang, base, model,
+                reorder=args["--reorder"],
+                copy_missing=args["--copy-missing"],
+            )
         if args["--assign-attributes"]:
             assign_attributes(lang, model)
-        if args["--reorder"]:
-            raise NotImplementedError
-        if args["--copy-missing"]:
-            raise NotImplementedError
         reformat(lang.dom.getroot(), *args["--indent"])
         Path(args["<langfile>"]).write_bytes(
             b'<?xml version="1.0" encoding="utf-8"?>\n' + etree.tostring(lang.dom, encoding="utf-8")

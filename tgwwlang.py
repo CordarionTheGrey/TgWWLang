@@ -6,7 +6,7 @@ Usage:
         [--model <langfile>]
         [--] <langfile>
     tgwwlang.py update
-        [-i <indent>] [--move-comments]
+        [-i <indent>] [--move-comments] [--no-backup]
         [--model <langfile>] [--assign-attributes]
         [(--base <langfile> [--reorder] [--copy-missing])]
         [--] <langfile>
@@ -20,6 +20,7 @@ Options:
                          children of the root. Append `t` to indent with tabs.
                          [default: 2]
     --move-comments      Move comments into corresponding `<string>` tags.
+    --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --reorder            Reorder strings to match the base langfile.
     --copy-missing       Copy missing strings from the base langfile.
@@ -76,6 +77,10 @@ def transform_args(args):
         "--base": schema.Or(None, os.path.isfile),
         str: schema.Or(bool, str),
     }).validate(args)
+
+
+def select_backup(path):
+    return path.with_name(".%s.bak" % path.name)
 
 
 def load_xml_schema():
@@ -363,8 +368,8 @@ def main():
         check_available_strings(lang, model)
         check_missing_strings(base if args["--copy-missing"] else lang, model)
 
-    # Mutate the langfile.
     if args["update"]:
+        # Mutate the langfile.
         if args["--move-comments"]:
             move_comments(lang.dom.getroot())
         if base is not None:
@@ -376,7 +381,12 @@ def main():
         if args["--assign-attributes"]:
             assign_attributes(lang, model)
         reformat(lang.dom.getroot(), *args["--indent"])
-        Path(args["<langfile>"]).write_bytes(
+
+        # Write it back to the disk.
+        target = Path(args["<langfile>"])
+        if not args["--no-backup"]:
+            target.replace(select_backup(target))
+        target.write_bytes(
             b'<?xml version="1.0" encoding="utf-8"?>\n' + etree.tostring(lang.dom, encoding="utf-8")
         )
 

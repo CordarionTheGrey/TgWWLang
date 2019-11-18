@@ -378,7 +378,7 @@ def main():
             move_comments(lang.dom.getroot())
         if base is not None:
             modify_strings(
-                lang, base, model,
+                lang, base, model or base,
                 reorder=args["--reorder"],
                 add_missing=args["--add-missing"],
             )

@@ -267,6 +267,23 @@ def move_comments(root):
         comments.clear()
 
 
+def assign_attributes(lang, model):
+    # HACK: We do not modify our data structures here except DOM.
+    for (key, deprecated), string in lang.strings.items():
+        model_deprecated = model.deprecated_summary.get(key)
+        if model_deprecated is None:
+            continue
+        if not deprecated and model_deprecated == Deprecated.TRUE:
+            string.dom.set("deprecated", "true")
+            if lang.deprecated_summary[key] == Deprecated.BOTH:
+                # Now both `<string>`s are deprecated, which is illegal.
+                warn('%s:%s: Multiple definitions of "%s".' % (
+                    lang.filename, string.sourceline or 0, key,
+                ))
+        if (model.strings.get((key, deprecated)) or model.strings[key, not deprecated]).gif:
+            string.dom.set("isgif", "true")
+
+
 def reformat(root, flat, indentation):
     cache = ['\n', '\n', '\n']
 
@@ -330,7 +347,7 @@ def main():
         if args["--move-comments"]:
             move_comments(lang.dom.getroot())
         if args["--assign-attributes"]:
-            raise NotImplementedError
+            assign_attributes(lang, model)
         if args["--reorder"]:
             raise NotImplementedError
         if args["--copy-missing"]:

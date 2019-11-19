@@ -64,7 +64,7 @@ from   lxml import etree
 import schema
 
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 DEFAULT_LANGFILE = "English.xml"
 SCHEMA_PATH = Path(__file__).resolve().with_name("tgwwlang.xsd")

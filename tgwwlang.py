@@ -116,6 +116,10 @@ def load_xml_schema():
     g_xml_schema = etree.XMLSchema(etree.parse(str(SCHEMA_PATH)))
 
 
+def is_true(value):
+    return value == "true"
+
+
 def load_language(filename):
     tree = etree.parse(filename)
     g_xml_schema.assertValid(tree)
@@ -127,7 +131,7 @@ def load_language(filename):
         base=lang.get("base"),
         variant=lang.get("variant"),
         owner=lang.get("owner") or "",
-        default=bool(lang.get("isDefault")),
+        default=is_true(lang.get("isDefault")),
     )
     if not summary.name:
         warn("%s:%s: Language name is not set" % (filename, lang.sourceline or 0))
@@ -140,7 +144,7 @@ def load_language(filename):
     deprecated_summary = collections.OrderedDict()
     for string in root.iterchildren("string"):
         key = string.get("key")
-        deprecated = bool(string.get("deprecated"))
+        deprecated = is_true(string.get("deprecated"))
 
         cur_status = Deprecated["TRUE" if deprecated else "FALSE"]
         prev_status = deprecated_summary.get(key)
@@ -174,7 +178,7 @@ def load_language(filename):
             ))
 
         strings.setdefault((key, deprecated), String(
-            gif=bool(string.get("isgif")),
+            gif=is_true(string.get("isgif")),
             values=values,
             dom=string,
         ))

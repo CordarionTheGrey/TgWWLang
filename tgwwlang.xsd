@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- This file belongs to the Public Domain. -->
 <s:schema xmlns:s="http://www.w3.org/2001/XMLSchema">
-  <s:simpleType name="true">
+  <s:simpleType name="boolean">
     <s:restriction base="s:string">
       <s:enumeration value="true" />
+      <s:enumeration value="false" />
     </s:restriction>
   </s:simpleType>
 
@@ -17,7 +18,7 @@
             <s:attribute name="variant" type="s:string" use="required" />
             <s:attribute name="owner" type="s:string" />
             <s:attribute name="code" type="s:string" />
-            <s:attribute name="isDefault" type="true" />
+            <s:attribute name="isDefault" type="boolean" />
           </s:complexType>
         </s:element>
 
@@ -28,8 +29,8 @@
             </s:sequence>
 
             <s:attribute name="key" type="s:string" use="required" />
-            <s:attribute name="deprecated" type="true" />
-            <s:attribute name="isgif" type="true" />
+            <s:attribute name="deprecated" type="boolean" />
+            <s:attribute name="isgif" type="boolean" />
           </s:complexType>
         </s:element>
       </s:sequence>

@@ -66,7 +66,8 @@ import schema
 
 __version__ = "0.1.0"
 
-SCHEMA_PATH = Path(__file__).with_name("TgWWLang.xsd")
+DEFAULT_LANGFILE = "English.xml"
+SCHEMA_PATH = Path(__file__).resolve().with_name("TgWWLang.xsd")
 
 Deprecated = enum.Enum("Deprecated", "FALSE  TRUE  BOTH")
 LanguageSummary = collections.namedtuple("LanguageSummary", "name  base  variant  owner  default")
@@ -196,13 +197,13 @@ def validate_placeholders(model):
 
 
 def load_model_language(filename):
-    if filename is None and not Path("English.xml").is_file():
-        warn("English.xml is not found. Some checks will be skipped.")
+    if filename is None and not Path(DEFAULT_LANGFILE).is_file():
+        warn("%s is not found. Some checks will be skipped." % DEFAULT_LANGFILE)
         return None
-    filename = filename or "English.xml"
+    filename = filename or DEFAULT_LANGFILE
     lang = load_language(filename)
     if not lang.summary.default:
-        warn("%s is NOT the default language." % filename)
+        warn("%s is not the default language, yet is selected as a model." % filename)
     validate_placeholders(lang)
     return lang
 

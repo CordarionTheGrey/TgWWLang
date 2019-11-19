@@ -188,7 +188,7 @@ def load_language(filename):
     )
 
 
-def validate_placeholders(model):
+def check_placeholders_sanity(model):
     for (key, _), string in model.strings.items():
         if len({value.placeholders for value in string.values}) > 1:
             warn('%s:%s: Inconsistent placeholders in "%s".' % (
@@ -204,7 +204,7 @@ def load_model_language(filename):
     lang = load_language(filename)
     if not lang.summary.default:
         warn("%s is not the default language, yet is selected as a model." % filename)
-    validate_placeholders(lang)
+    check_placeholders_sanity(lang)
     return lang
 
 
@@ -389,8 +389,11 @@ def main():
         check_summary(lang, model)
     if base is not None and (model is None or base.filename != model.filename):
         check_summary(lang, base)
-        validate_placeholders(base)
-    if model is not None:
+    if model is None:
+        if base is not None:
+            check_placeholders_sanity(base)
+        check_placeholders_sanity(lang)
+    else:
         if base is not None and base.filename != model.filename:
             check_available_strings(base, model)
         check_available_strings(lang, model)

@@ -67,7 +67,7 @@ import schema
 __version__ = "0.1.0"
 
 DEFAULT_LANGFILE = "English.xml"
-SCHEMA_PATH = Path(__file__).resolve().with_name("TgWWLang.xsd")
+SCHEMA_PATH = Path(__file__).resolve().with_name("tgwwlang.xsd")
 
 Deprecated = enum.Enum("Deprecated", "FALSE  TRUE  BOTH")
 LanguageSummary = collections.namedtuple("LanguageSummary", "name  base  variant  owner  default")

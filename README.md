@@ -2,6 +2,7 @@
 
 ## Usage
 
+<!-- [[[cog import tgwwlang; cog.outl("```%s```" % tgwwlang.__doc__)]]] -->
 ```
 Usage:
     tgwwlang.py check
@@ -29,6 +30,7 @@ Options:
     --reorder            Reorder strings to match the base langfile.
     --add-missing        Copy missing strings from the base langfile.
 ```
+<!-- [[[end]]] (checksum: c24560bbe0d07c7e18428168c279dd1d) -->
 
 
 ### Examples

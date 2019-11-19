@@ -31,7 +31,7 @@ Usage:
     tgwwlang.py update
         [-i <indent>] [--move-comments] [--no-backup]
         [--model <langfile>] [--assign-attributes]
-        [(--base <langfile> [--reorder] [--add-missing])]
+        [(--base <langfile> [--add-missing] [--reorder])]
         [--] <langfile>
     tgwwlang.py -h
     tgwwlang.py -V
@@ -47,8 +47,8 @@ Options:
     --move-comments      Move external comments into `<string>` tags.
     --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
-    --reorder            Reorder strings to match the base langfile.
     --add-missing        Copy missing strings from the base langfile.
+    --reorder            Reorder strings to match the base langfile.
 """
 
 import collections

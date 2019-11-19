@@ -1,7 +1,7 @@
 # TgWWLang
 
 This is an unofficial script to aid maintaining translations for [Werewolf][werewolf] Telegram game
-(see [@werewolftranslation][translation] channel). There is an official XML editor —
+(see [@werewolftranslation][translation] channel). There is a (kind of) official XML editor —
 [WuffPad][wuffpad], — but if you’re comfortable with a terminal and your favourite text editor, need
 advanced features, or just don’t have Windows, you may like this one.
 
@@ -35,7 +35,7 @@ Usage:
     tgwwlang.py update
         [-i <indent>] [--move-comments] [--no-backup]
         [--model <langfile>] [--assign-attributes]
-        [(--base <langfile> [--reorder] [--add-missing])]
+        [(--base <langfile> [--add-missing] [--reorder])]
         [--] <langfile>
     tgwwlang.py -h
     tgwwlang.py -V
@@ -51,10 +51,10 @@ Options:
     --move-comments      Move external comments into `<string>` tags.
     --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
-    --reorder            Reorder strings to match the base langfile.
     --add-missing        Copy missing strings from the base langfile.
+    --reorder            Reorder strings to match the base langfile.
 ```
-<!-- [[[end]]] (checksum: c24560bbe0d07c7e18428168c279dd1d) -->
+<!-- [[[end]]] (checksum: 940b77a16fd6ee81b52e6b612659e45c) -->
 
 
 ### Examples
@@ -81,8 +81,8 @@ Options:
     are moved into corresponding `<string>`s (otherwise, they’ll just stick together). Then you can
     easily run a diff checker on these two files.
 
-*   `tgwwlang.py update RussianMafia.xml --base Russian.xml -i-2 --assign-attributes --move-comments
-    --reorder --add-missing`  
+*   `tgwwlang.py update RussianMafia.xml --base Russian.xml --assign-attributes --move-comments
+    --add-missing --reorder -i-2`  
     Do everything and produce result in a compact format.
 
 

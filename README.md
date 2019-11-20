@@ -12,8 +12,9 @@ advanced features, or just don’t have Windows, you may like this one.
 
 ## Installation
 
-0. Install [Python][python] (the latest is recommended; minimal supported version is **3.4**).
-1. Grab [`requirements.txt`][requirements] and run `pip3 install -Ur requirements.txt`.
+0. Install [Python][python] (the latest is recommended; minimal supported versions are
+   **3.2** and **2.7**).
+1. Grab [`requirements.txt`][requirements] and run `pip install -Ur requirements.txt`.
 2. Download [`tgwwlang.py`][tgwwlang-py] and [`tgwwlang.xsd`][tgwwlang-xsd] and put them to whatever
    directory you wish.
 3. _(optional)_ Symlink `tgwwlang.py` to a place in your `PATH`.

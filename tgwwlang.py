@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# coding: utf-8
 #
 # MIT License
 #
@@ -51,10 +52,10 @@ Options:
     --reorder            Reorder strings to match the base langfile.
 """
 
+from __future__ import print_function
+
 import collections
 import copy
-import enum
-from   pathlib import Path
 import os.path
 import re
 import sys
@@ -67,34 +68,47 @@ import schema
 __version__ = "0.1.1"
 
 DEFAULT_LANGFILE = "English.xml"
-SCHEMA_PATH = Path(__file__).resolve().with_name("tgwwlang.xsd")
+SCHEMA_PATH = "%s/tgwwlang.xsd" % os.path.abspath(os.path.dirname(__file__))
 
-Deprecated = enum.Enum("Deprecated", "FALSE  TRUE  BOTH")
+g_xml_schema = None
+
+
+class Deprecated:
+    FALSE = 1
+    TRUE  = 2
+    BOTH  = 3
+
+
 LanguageSummary = collections.namedtuple("LanguageSummary", "name  base  variant  owner  default")
 String = collections.namedtuple("String", "gif  values  dom")
 Value = collections.namedtuple("Value", "placeholders  dom")
 Language = collections.namedtuple("Language", "filename  summary  strings  deprecated_summary  dom")
 
-g_xml_schema = None
+
+if sys.version_info.major >= 3:
+    stringify = str
+else:
+    def stringify(obj):
+        return obj if isinstance(obj, str) else unicode(obj).encode("utf-8")
 
 
 def info(msg):
-    print("\x1B[1;34mINFO\x1B[0m:", msg, file=sys.stderr)
+    print("\x1B[1;34mINFO\x1B[0m:", stringify(msg), file=sys.stderr)
 
 
 def warn(msg):
-    print("\x1B[1;33mWARNING\x1B[0m:", msg, file=sys.stderr)
+    print("\x1B[1;33mWARNING\x1B[0m:", stringify(msg), file=sys.stderr)
 
 
 def error(msg):
-    print("\x1B[1;31mERROR\x1B[0m:", msg, file=sys.stderr)
+    print("\x1B[1;31mERROR\x1B[0m:", stringify(msg), file=sys.stderr)
 
 
 def parse_indentation_spec(spec):
-    m = re.fullmatch(r"-?((\d*)(t?))", spec, re.A)
-    if m is None or not m.group(1):
+    m = re.match(r"-?(?!\Z)([0-9]*)(t?)\Z", spec)
+    if m is None:
         raise ValueError("Invalid indentation spec: `%s`" % spec)
-    return spec[0] == '-', int(m.group(2) or 1) * ('\t' if m.group(3) else ' ')
+    return spec[0] == '-', int(m.group(1) or 1) * ('\t' if m.group(2) else ' ')
 
 
 def transform_args(args):
@@ -108,12 +122,30 @@ def transform_args(args):
 
 
 def select_backup(path):
-    return path.with_name(".%s.bak" % path.name)
+    prefix, name = os.path.split(path)
+    return os.path.join(prefix, ".%s.bak" % name)
+
+
+try:
+    replace_file = os.replace
+except AttributeError:
+    def replace_file(src, dst):
+        if sys.platform.startswith("win"):
+            os.remove(dst)
+        try:
+            os.rename(src, dst)
+        except OSError as e:
+            import errno
+
+            if e.errno != errno.EEXIST:
+                raise
+            os.remove(dst)
+            os.rename(src, dst)
 
 
 def load_xml_schema():
     global g_xml_schema
-    g_xml_schema = etree.XMLSchema(etree.parse(str(SCHEMA_PATH)))
+    g_xml_schema = etree.XMLSchema(etree.parse(SCHEMA_PATH))
 
 
 def is_true(value):
@@ -146,11 +178,11 @@ def load_language(filename):
         key = string.get("key")
         deprecated = is_true(string.get("deprecated"))
 
-        cur_status = Deprecated["TRUE" if deprecated else "FALSE"]
+        cur_status = Deprecated.TRUE if deprecated else Deprecated.FALSE
         prev_status = deprecated_summary.get(key)
         if prev_status is not None:
             # A non-deprecated string followed by a deprecated one is OK, but not vice versa.
-            if cur_status.value <= prev_status.value:
+            if cur_status <= prev_status:
                 warn('%s:%s: Multiple definitions of "%s".' % (
                     filename, string.sourceline or 0, key,
                 ))
@@ -201,7 +233,7 @@ def check_placeholders_sanity(model):
 
 
 def load_model_language(filename):
-    if filename is None and not Path(DEFAULT_LANGFILE).is_file():
+    if filename is None and not os.path.isfile(DEFAULT_LANGFILE):
         warn("%s is not found. Some checks will be skipped." % DEFAULT_LANGFILE)
         return None
     filename = filename or DEFAULT_LANGFILE
@@ -306,10 +338,10 @@ def move_comments(root):
             for other in comments:
                 comment.addnext(other)
                 comment = other
-        comments.clear()
+        del comments[:]
 
 
-def modify_strings(lang, base, model, *, reorder, add_missing):
+def modify_strings(lang, base, model, reorder, add_missing):
     if not reorder and not add_missing:
         return
     root = lang.dom.getroot()
@@ -325,7 +357,7 @@ def modify_strings(lang, base, model, *, reorder, add_missing):
             info('%s: Adding "%s".' % (lang.filename, key))
             string = lang.strings[key, False] = copy.deepcopy(base_string)
             lang.deprecated_summary[key] = \
-                Deprecated["BOTH" if key in lang.deprecated_summary else "FALSE"]
+                Deprecated.BOTH if key in lang.deprecated_summary else Deprecated.FALSE
             root.append(string.dom)
 
 
@@ -371,7 +403,7 @@ def main():
     try:
         args = transform_args(docopt.docopt(__doc__, version="tgwwlang.py v%s" % __version__))
     except docopt.DocoptExit as e:
-        print(e, file=sys.stderr)
+        print(stringify(e), file=sys.stderr)
         sys.exit(2)
     except schema.SchemaError as e:
         error(e)
@@ -422,12 +454,12 @@ def main():
         reformat(lang.dom.getroot(), *args["--indent"])
 
         # Write it back to the disk.
-        target = Path(args["<langfile>"])
-        if not args["--no-backup"]:
-            target.replace(select_backup(target))
-        target.write_bytes(
+        serialized = \
             b'<?xml version="1.0" encoding="utf-8"?>\n' + etree.tostring(lang.dom, encoding="utf-8")
-        )
+        if not args["--no-backup"]:
+            replace_file(args["<langfile>"], select_backup(args["<langfile>"]))
+        with open(args["<langfile>"], "wb") as f:
+            f.write(serialized)
 
 
 if __name__ == "__main__":

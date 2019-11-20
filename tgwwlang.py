@@ -68,7 +68,7 @@ import schema
 __version__ = "0.2.0"
 
 DEFAULT_LANGFILE = "English.xml"
-SCHEMA_PATH = "%s/tgwwlang.xsd" % os.path.abspath(os.path.dirname(__file__))
+SCHEMA_PATH = "%s/tgwwlang.xsd" % os.path.dirname(os.path.realpath(__file__))
 
 g_xml_schema = None
 
@@ -130,17 +130,17 @@ try:
     replace_file = os.replace
 except AttributeError:
     def replace_file(src, dst):
-        if sys.platform.startswith("win"):
-            os.remove(dst)
-        try:
-            os.rename(src, dst)
-        except OSError as e:
-            import errno
+        if not sys.platform.startswith("win"):
+            try:
+                os.rename(src, dst)
+                return
+            except OSError as e:
+                import errno
 
-            if e.errno != errno.EEXIST:
-                raise
-            os.remove(dst)
-            os.rename(src, dst)
+                if e.errno != errno.EEXIST:
+                    raise
+        os.remove(dst)
+        os.rename(src, dst)
 
 
 def load_xml_schema():
@@ -318,13 +318,10 @@ def move_comments(root):
     node = root[0]
     while True:
         # Find the first comment that is a direct child of the root.
-        if node.tag is etree.Comment:
-            comment = node
-        else:
-            for comment in node.itersiblings(etree.Comment):
-                break
-            else: # No more comments left.
-                return
+        for comment in node.itersiblings(etree.Comment):
+            break
+        else: # No more comments left.
+            return
         # Find the first `<string>` that follows it, collecting all comments between them.
         for node in comment.itersiblings():
             if node.tag is not etree.Comment:

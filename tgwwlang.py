@@ -286,22 +286,26 @@ def move_comments(root):
     node = root[0]
     while True:
         # Find the first comment that is a direct child of the root.
-        for comment in node.itersiblings(etree.Comment):
-            break
-        else: # No more comments left.
-            return
+        if node.tag is etree.Comment:
+            comment = node
+        else:
+            for comment in node.itersiblings(etree.Comment):
+                break
+            else: # No more comments left.
+                return
         # Find the first `<string>` that follows it, collecting all comments between them.
-        for node in comment.itersiblings(etree.Comment, "string"):
-            if node.tag == "string":
+        for node in comment.itersiblings():
+            if node.tag is not etree.Comment:
                 break
             comments.append(node)
         else: # No `<string>` found.
             return
-        # Reattach comments to that `<string>`.
-        node.insert(0, comment)
-        for other in comments:
-            comment.addnext(other)
-            comment = other
+        if node.tag == "string":
+            # Reattach comments to that `<string>`.
+            node.insert(0, comment)
+            for other in comments:
+                comment.addnext(other)
+                comment = other
         comments.clear()
 
 

@@ -94,7 +94,7 @@ Options:
    should contain `<value>`s, etc.).
 3. A langfile should be open (i.e., have no `owner`); a warning is given otherwise.
 4. A language should have a unique `name`, as well as `base`+`variant` pair.
-5. Correct attribute usage (`deprecated`, `isgif`, `isDefault`).
+5. Correct attribute usage (`deprecated`, `isgif`).
 6. Each string should have a unique `key`. Exception: a langfile is allowed to have 2 strings with
    the same key iff the _2nd_ is `deprecated` and the _1st_ is not.
 7. Missing strings, missing values, empty values.

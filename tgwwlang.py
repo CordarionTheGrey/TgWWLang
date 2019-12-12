@@ -67,7 +67,7 @@ import schema
 
 __version__ = "0.2.1"
 
-DEFAULT_LANGFILE = "English.xml"
+MODEL_LANGFILE = "English.xml"
 SCHEMA_PATH = "%s/tgwwlang.xsd" % os.path.dirname(os.path.realpath(__file__))
 
 g_xml_schema = None
@@ -233,23 +233,21 @@ def check_placeholders_sanity(model):
 
 
 def load_model_language(filename):
-    if filename is None and not os.path.isfile(DEFAULT_LANGFILE):
-        warn("%s is not found. Some checks will be skipped." % DEFAULT_LANGFILE)
+    if filename is None and not os.path.isfile(MODEL_LANGFILE):
+        warn("%s is not found. Some checks will be skipped." % MODEL_LANGFILE)
         return None
-    filename = filename or DEFAULT_LANGFILE
+    filename = filename or MODEL_LANGFILE
     lang = load_language(filename)
     if not lang.summary.default:
-        warn("%s is not the default language, yet is selected as a model." % filename)
+        warn("%s is not a default language, yet is selected as a model." % filename)
     check_placeholders_sanity(lang)
     return lang
 
 
 def load_target_language(filename):
     lang = load_language(filename)
-    if lang.summary.default:
-        warn("%s is the default language." % filename)
     if lang.summary.owner:
-        info("%s is a closed langfile. Its owner is https://t.me/%s." % (
+        info("%s is a closed langfile. Its owner is https://t.me/%s" % (
             filename, lang.summary.owner,
         ))
     return lang

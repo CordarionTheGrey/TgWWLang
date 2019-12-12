@@ -99,5 +99,5 @@ Options:
    the same key iff the _2nd_ is `deprecated` and the _1st_ is not.
 7. Missing strings, missing values, empty values.
 8. Strings with unknown `key`s.
-9. Missing and extra placeholders (`{0}` and friends). If the reference langfile is unavailble,
+9. Missing and extra placeholders (`{0}` and friends). If the reference langfile is unavailable,
    placeholders are simply checked to be consistent across multiple `<value>`s of a `<string>`.

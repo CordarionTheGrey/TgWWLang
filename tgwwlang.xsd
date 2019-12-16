@@ -22,7 +22,7 @@
           </s:complexType>
         </s:element>
 
-        <s:element name="string" maxOccurs="unbounded">
+        <s:element name="string" minOccurs="0" maxOccurs="unbounded">
           <s:complexType>
             <s:sequence>
               <s:element name="value" minOccurs="0" maxOccurs="unbounded" type="s:string" />

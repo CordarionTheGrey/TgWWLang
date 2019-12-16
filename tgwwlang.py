@@ -32,7 +32,7 @@ Usage:
     tgwwlang.py update
         [-i <indent>] [--move-comments] [--no-backup]
         [--model <langfile>] [--assign-attributes]
-        [(--base <langfile> [--add-missing] [--reorder])]
+        [(--base <langfile> [(--add-missing [--only <keys>])] [--reorder])]
         [--] <langfile>
     tgwwlang.py -h
     tgwwlang.py -V
@@ -49,6 +49,7 @@ Options:
     --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --add-missing        Copy missing strings from the base langfile.
+    --only <keys>        Copy only specified strings (comma-separated).
     --reorder            Reorder strings to match the base langfile.
 """
 
@@ -111,12 +112,22 @@ def parse_indentation_spec(spec):
     return spec[0] == '-', int(m.group(1) or 1) * ('\t' if m.group(2) else ' ')
 
 
+def parse_csv(s):
+    if not s:
+        return [ ]
+    values = s.split(',')
+    if len(values) != len(set(values)):
+        raise ValueError("Duplicates in the list: `%s`" % s)
+    return values
+
+
 def transform_args(args):
     return schema.Schema({
         "<langfile>": os.path.isfile,
         "--indent": schema.Use(parse_indentation_spec),
         "--model": schema.Or(None, os.path.isfile),
         "--base": schema.Or(None, os.path.isfile),
+        "--only": schema.Or(None, schema.Use(parse_csv)),
         str: schema.Or(bool, str),
     }).validate(args)
 
@@ -336,10 +347,38 @@ def move_comments(root):
         del comments[:]
 
 
-def modify_strings(lang, base, model, reorder, add_missing):
+def modify_strings(lang, base, model, reorder, add_missing, only):
     if not reorder and not add_missing:
         return
     root = lang.dom.getroot()
+    if not reorder and only is not None:
+        for key in only:
+            try:
+                base_deprecated = base.deprecated_summary[key]
+            except KeyError:
+                warn('%s: Unknown key "%s".' % (base.filename, key))
+                continue
+            model_deprecated = model.deprecated_summary.get(key, Deprecated.TRUE)
+            found = 0x0
+            for deprecated in (False, True):
+                try:
+                    base_string = base.strings[key, deprecated]
+                except KeyError:
+                    continue
+                string = lang.strings.get((key, deprecated))
+                if string is None and model_deprecated != Deprecated.BOTH:
+                    string = lang.strings.get((key, not deprecated))
+                if string is None:
+                    info('%s: Adding "%s".' % (lang.filename, key))
+                    string = lang.strings[key, deprecated] = copy.deepcopy(base_string)
+                    root.append(string.dom)
+                found |= 1 << deprecated
+            assert found != 0x0
+            lang.deprecated_summary[key] = found
+        return
+
+    if only is not None: # TODO.
+        raise NotImplementedError("`--only` with `--reorder` is not implemented")
     for (key, deprecated), base_string in base.strings.items():
         model_deprecated = model.deprecated_summary.get(key, Deprecated.TRUE)
         string = lang.strings.get((key, deprecated))
@@ -443,6 +482,7 @@ def main():
                 lang, base, model or base,
                 reorder=args["--reorder"],
                 add_missing=args["--add-missing"],
+                only=args["--only"],
             )
         if args["--assign-attributes"]:
             assign_attributes(lang, model)

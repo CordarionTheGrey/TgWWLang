@@ -377,8 +377,15 @@ def modify_strings(lang, base, model, reorder, add_missing, only):
             lang.deprecated_summary[key] = found
         return
 
-    if only is not None: # TODO.
-        raise NotImplementedError("`--only` with `--reorder` is not implemented")
+    if only is None:
+        def should_add(key, deprecated, model_deprecated):
+            return not deprecated and model_deprecated != Deprecated.TRUE
+    else:
+        only = set(only)
+
+        def should_add(key, deprecated, model_deprecated):
+            return key in only
+
     for (key, deprecated), base_string in base.strings.items():
         model_deprecated = model.deprecated_summary.get(key, Deprecated.TRUE)
         string = lang.strings.get((key, deprecated))
@@ -387,11 +394,14 @@ def modify_strings(lang, base, model, reorder, add_missing, only):
         if string is not None:
             if reorder:
                 root.append(string.dom)
-        elif add_missing and not deprecated and model_deprecated != Deprecated.TRUE:
+        elif add_missing and should_add(key, deprecated, model_deprecated):
             info('%s: Adding "%s".' % (lang.filename, key))
-            string = lang.strings[key, False] = copy.deepcopy(base_string)
-            lang.deprecated_summary[key] = \
-                Deprecated.BOTH if key in lang.deprecated_summary else Deprecated.FALSE
+            string = lang.strings[key, deprecated] = copy.deepcopy(base_string)
+            lang.deprecated_summary[key] = (
+                Deprecated.BOTH if key in lang.deprecated_summary else
+                Deprecated.TRUE if deprecated else
+                Deprecated.FALSE
+            )
             root.append(string.dom)
 
 

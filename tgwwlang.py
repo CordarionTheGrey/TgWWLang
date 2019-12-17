@@ -66,7 +66,7 @@ from   lxml import etree
 import schema
 
 
-__version__ = "0.2.2"
+__version__ = "0.3.0"
 
 MODEL_LANGFILE = "English.xml"
 SCHEMA_PATH = "%s/tgwwlang.xsd" % os.path.dirname(os.path.realpath(__file__))

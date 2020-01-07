@@ -1,0 +1,161 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://github.com/CordarionTheGrey/TgWWLang/blob/v0.3.0/tgwwlang.schema.json
+
+definitions:
+  fileId:
+    enum: [0, 1, 2, 3]
+    description: |-
+      0 - Does not correspond to a particular file;
+      1 - Model file (typically, English.xml);
+      2 - Base file;
+      3 - Target file.
+
+  lineNumber:
+    type: integer
+    minimum: 0
+    description: >-
+      Line numbers are 1-based; 0 is used if the number is unknown.
+
+  error:
+    type: array
+    minItems: 2
+    items:
+    - $ref: '#/definitions/lineNumber'
+    - type: string
+      description: >-
+        Description of the error.
+
+  message:
+    allOf:
+    - type: array
+      minItems: 3
+      items:
+      - type: integer
+        minimum: 0
+        description: >-
+          Code uniquely identifies the message. New codes may be added in the future,
+          and some codes may be removed, but they will never change their meaning.
+      - $ref: '#/definitions/lineNumber'
+      - type: array
+        items: {type: string}
+        description: >-
+          Details - additional pieces of information for the message.
+    # List of currently used message codes.
+    - if: {type: array, items: [const: 0]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          A string with key `details[0]` is missing.
+    - if: {type: array, items: [const: 1]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          A string with unknown key, `details[0]`, is not present in the model langfile.
+    - if: {type: array, items: [const: 2]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 2}]
+        description: >-
+          A string with key `details[0]` lacks placeholder `details[1]`.
+    - if: {type: array, items: [const: 3]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 2}]
+        description: >-
+          A string with key `details[0]` has an extra placeholder, `details[1]`.
+    - if: {type: array, items: [const: 4]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          Successfully added string with key `details[0]`.
+    # Codes 5-9 are reserved for future use.
+    - if: {type: array, items: [const: 10]}
+      then:
+        type: array
+        description: >-
+          Model langfile is not found, thus only partial validation is being performed.
+    - if: {type: array, items: [const: 11]}
+      then:
+        type: array
+        description: >-
+          Model langfile does not have `isDefault="true"` attribute in its `<language />`.
+    - if: {type: array, items: [const: 12]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          The langfile is closed. `details[0]` is its owner.
+    - if: {type: array, items: [const: 13]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          A required attribute of `<language />`, `details[0]`, is empty.
+    - if: {type: array, items: [const: 14]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          There are multiple strings with the same key, `details[0]`.
+    - if: {type: array, items: [const: 15]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          A string with key `details[0]` has an empty `<value />`.
+    - if: {type: array, items: [const: 16]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          A string with key `details[0]` has no `<value>`s at all.
+    - if: {type: array, items: [const: 17]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          The langfile's name, which is `details[0]`, is the same as the name of its base or model.
+    - if: {type: array, items: [const: 18]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 2}]
+        description: >-
+          The langfile's base+variant pair, which is `details[0]` and `details[1]`, is the same as
+          base+variant pair of its base or model.
+    - if: {type: array, items: [const: 19]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 1}]
+        description: >-
+          Placeholders are inconsistent across multiple `<value>`s of a string with key
+          `details[0]`.
+    - if: {type: array, items: [const: 20]}
+      then:
+        type: array
+        items: [true, true, {type: array, minItems: 2}]
+        description: >-
+          A string with key `details[0]` has attribute `details[1]` set to `true`, however, in model
+          langfile, it is set to `false`.
+
+type: object
+required: [success, annotations]
+properties:
+  success: {type: boolean}
+  annotations:
+    type: array
+    items:
+      type: object
+      required: [file, errors, messages]
+      properties:
+        file: {$ref: '#/definitions/fileId'}
+        errors:
+          type: array
+          items: {$ref: '#/definitions/error'}
+        messages:
+          type: array
+          items: {$ref: '#/definitions/message'}

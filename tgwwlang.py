@@ -27,14 +27,12 @@
 """
 Usage:
     tgwwlang.py check
-        [--model <langfile>]
-        [--json]
+        [--model <langfile>] [--json]
         [--] <langfile>
     tgwwlang.py update
-        [-i <indent>] [--move-comments] [--no-backup]
+        [-i <indent>] [--move-comments] [--json] [--no-backup]
         [--model <langfile>] [--assign-attributes]
         [(--base <langfile> [(--add-missing [--only <keys>])] [--reorder])]
-        [--json]
         [--] <langfile>
     tgwwlang.py -h
     tgwwlang.py -V
@@ -48,12 +46,12 @@ Options:
                          children of the root. Append `t` to indent with tabs.
                          [default: 2]
     --move-comments      Move external comments into `<string>` tags.
+    --json               Produce machine-readable output.
     --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --add-missing        Copy missing strings from the base langfile.
     --only <keys>        Copy only specified strings (comma-separated).
     --reorder            Reorder strings to match the base langfile.
-    --json               Produce machine-readable output.
 """
 
 from __future__ import print_function

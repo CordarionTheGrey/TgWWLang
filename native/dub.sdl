@@ -1,0 +1,15 @@
+name        "tgwwlangbot"
+description "A bot for manipulating langfiles for Werewolf Telegram game."
+authors     "Cordarion the Grey"
+copyright   "Copyright © 2020, Cordarion the Grey"
+license     "MIT"
+
+toolchainRequirements frontend=">=2.078"
+
+dependency "tg-d" version="~>0.0.2"
+
+targetPath "bin"
+
+buildRequirements "requireContracts"
+libs "xml2"
+lflags "-Lbin" "-rpath=$$ORIGIN" platform="posix"

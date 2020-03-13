@@ -4,9 +4,6 @@ import std.array: Appender, appender;
 import std.range.primitives;
 import std.typecons: Tuple;
 
-import std.exception: assumeWontThrow;
-import std.stdio;
-
 import c_libxml.parser;
 import c_libxml.tree;
 import c_libxml.xmlerror;
@@ -35,7 +32,7 @@ void testLibxmlVersion() {
     xmlCheckVersion(LIBXML_VERSION);
 }
 
-private void _appendError(Appender!(XMLError[ ]) app, xmlError* e) {
+private void _appendError(Appender!(XMLError[ ]) app, const(xmlError)* e) {
     import std.string: chomp, fromStringz;
 
     XMLError our = {
@@ -68,7 +65,7 @@ Tuple!(XMLDoc*, q{doc}, XMLError[ ], q{errors}) parseFile(
     auto errors = appender!(XMLError[ ]);
     ctxt._private = &errors;
     auto doc = xmlCtxtReadFile(ctxt, filename, null, 0x0);
-    ctxt._private = null; // Allow it to be garbage-collected.
+    ctxt._private = null; // Do not leave dangling pointers.
     return typeof(return)(doc, errors.data);
 }
 
@@ -100,7 +97,7 @@ XMLValidationResult validateDoc(XMLSchemaValidCtxt* ctxt, XMLDoc* doc) {
     auto errors = appender!(XMLError[ ]);
     xmlSchemaSetValidStructuredErrors(ctxt, &dupError, &errors);
     const code = xmlSchemaValidateDoc(ctxt, doc);
-    xmlSchemaSetValidStructuredErrors(ctxt, &dupError, null); // Allow it to be garbage-collected.
+    xmlSchemaSetValidStructuredErrors(ctxt, &dupError, null); // Do not leave dangling pointers.
     return XMLValidationResult(cast(XMLErrorCode)code, errors.data);
 }
 

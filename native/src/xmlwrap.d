@@ -1,6 +1,7 @@
 module xmlwrap;
 
 import std.array: Appender, appender;
+import std.range.primitives;
 import std.typecons: Tuple;
 
 import std.exception: assumeWontThrow;
@@ -101,4 +102,44 @@ XMLValidationResult validateDoc(XMLSchemaValidCtxt* ctxt, XMLDoc* doc) {
     const code = xmlSchemaValidateDoc(ctxt, doc);
     xmlSchemaSetValidStructuredErrors(ctxt, &dupError, null); // Allow it to be garbage-collected.
     return XMLValidationResult(cast(XMLErrorCode)code, errors.data);
+}
+
+class XMLException: Exception {
+    XMLError[ ] errors;
+
+    this(string msg, inout(XMLError)[ ] errors) inout nothrow pure @safe @nogc {
+        super(msg);
+        this.errors = errors;
+    }
+}
+
+struct XMLLoader {
+private:
+    XMLParserCtxt* _parser;
+    XMLSchemaValidCtxt* _validator;
+
+    XMLDoc* _loadDoc(const(char)* filename) {
+        auto result = parseFile(_parser, filename);
+        if (!result.errors.empty)
+            throw new XMLException("Syntax error", result.errors);
+        return result.doc;
+    }
+
+    public void loadSchema(const(char)* filename) {
+        _validator = createValidator(_loadDoc(filename)); // Both leak.
+    }
+
+    public XMLDoc* loadDoc(const(char)* filename) {
+        auto doc = _loadDoc(filename);
+        // Validate after parsing so that syntax errors do not get mixed with validation errors.
+        // TODO: Is that really important?
+        auto errors = validateDoc(_validator, doc).errors;
+        if (!errors.empty)
+            throw new XMLException("Validation error", errors);
+        return doc;
+    }
+}
+
+XMLLoader createLoader() {
+    return XMLLoader(createParser()); // Leaks.
 }

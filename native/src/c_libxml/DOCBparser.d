@@ -14,7 +14,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * Most of the back-end structures from XML and SGML are shared.

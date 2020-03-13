@@ -11,5 +11,6 @@ dependency "tg-d" version="~>0.0.2"
 targetPath "bin"
 
 buildRequirements "requireContracts"
+dflags "-dip1008"
 libs "xml2"
 lflags "-Lbin" "-rpath=$$ORIGIN" platform="posix"

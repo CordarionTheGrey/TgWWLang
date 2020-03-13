@@ -42,7 +42,7 @@ sed -Ei -f- xmlschemas.h <<'SED'
 \:^\s*#\s*include\s*<libxml/(encoding|xmlerror)\.h>: {
     x
     G
-    s|\n.*/(.).*|\1|
+    s|\n[^/]*/(.).*|\1|
     x
 }
 SED

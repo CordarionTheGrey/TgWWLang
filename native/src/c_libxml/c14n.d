@@ -21,7 +21,7 @@ import c_libxml.xpath;
  * Author: Aleksey Sanin <aleksey@aleksey.com>
  */
 
-extern (C):
+extern (C) nothrow:
 
 /* __cplusplus */
 

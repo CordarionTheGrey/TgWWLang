@@ -16,7 +16,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 int xmlUCSIsAegeanNumbers(int code);
 int xmlUCSIsAlphabeticPresentationForms(int code);

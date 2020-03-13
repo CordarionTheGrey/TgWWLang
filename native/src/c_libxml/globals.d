@@ -10,7 +10,7 @@ import c_libxml.xmlIO;
 import c_libxml.xmlmemory;
 import c_libxml.xmlversion;
 
-static if (!__traits(compiles, _xmlOutputBuffer))
+static if (!is(_xmlOutputBuffer))
     struct _xmlOutputBuffer;
 
 /*
@@ -26,7 +26,7 @@ static if (!__traits(compiles, _xmlOutputBuffer))
  * Author: Gary Pennington <Gary.Pennington@uk.sun.com>, Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 void xmlInitGlobals();
 void xmlCleanupGlobals();

@@ -14,7 +14,7 @@ import c_libxml.xmlversion;
  * Author: Alfred Mickautsch <alfred@mickautsch.de>
  */
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * Constructors & Destructor

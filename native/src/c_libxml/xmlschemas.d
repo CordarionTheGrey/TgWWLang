@@ -17,7 +17,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.config;
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * This error codes are obsolete; not used any more.
@@ -48,7 +48,6 @@ enum xmlSchemaValidError
     attrinvalid = 21,
     value = 22,
     facet = 23,
-     = 24,
     xxx = 25
 }
 

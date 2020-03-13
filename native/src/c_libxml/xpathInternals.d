@@ -18,7 +18,7 @@ import c_libxml.xpath;
 
 import core.stdc.stddef;
 
-extern (C):
+extern (C) nothrow:
 
 /************************************************************************
  *                                                                      *

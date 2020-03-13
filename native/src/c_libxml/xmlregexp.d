@@ -17,7 +17,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.stdio;
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * xmlRegexpPtr:

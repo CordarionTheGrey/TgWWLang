@@ -23,7 +23,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.config;
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * XML_DEFAULT_VERSION:

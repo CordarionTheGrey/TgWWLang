@@ -15,7 +15,7 @@ import c_libxml.xmlversion;
  * Author: Bjorn Reese <bjorn.reese@systematic.dk>
  */
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * The hash table.

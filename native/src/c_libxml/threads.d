@@ -13,7 +13,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * xmlMutex are a simple mutual exception locks.

@@ -15,7 +15,7 @@ if [[ -z "$demanded_version" ]]; then
     readonly versions=(libxml2-*)
     shopt -u nullglob
     case ${#versions[@]} in
-        0)  echo 'Unable to find `libxml2/libxml2-*`.' >&2
+        0)  echo 'Unable to find `libxml/libxml2-*`.' >&2
             exit 1
             ;;
         1)  cd -- "$versions"
@@ -30,7 +30,7 @@ if [[ -z "$demanded_version" ]]; then
 elif [[ -e "libxml2-$demanded_version" ]]; then
     cd "libxml2-$demanded_version"
 else
-    echo 'Unable to find `libxml2/libxml2-'"$demanded_version"'`.' >&2
+    echo 'Unable to find `libxml/libxml2-'"$demanded_version"'`.' >&2
     exit 1
 fi
 

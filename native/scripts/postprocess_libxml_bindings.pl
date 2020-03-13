@@ -12,6 +12,10 @@ s/\G *+\K\t/    /g;
 $_ = expand $_;
 # DStep sometimes imports stdlib and sometimes stddef, with no changes to the code.
 s/^\s*import\s+core\s*\.\s*stdc\s*\.\s*std\Klib\b/def/;
+# Add `nothrow` attribute to all functions and callbacks.
+s/\bextern\s*\(\s*C\s*\)\K/ nothrow/g;
+# Remove anonymous `enum` members (why does D compile them at all?).
+$_ = "" if (/^\s*enum\b/ ... /^\s*\}/) && /^\s*=/;
 if ($ARGV eq "encoding.d") {
     # DStep incorrectly renames `xmlCharEncoding` enum members.
     s/^\s*\K(?=[0-9])/iso/ if /^\s*enum\s+xmlCharEncoding\b/ ... /^\s*\}/;
@@ -24,11 +28,11 @@ if ($ARGV eq "encoding.d") {
     } elsif ($1 eq "_xmlOutputBuffer") {
         # libxml may be compiled without support for output. `_xmlOutputBuffer` will not be present
         # at all in that case.
-        $_  = "static if (!__traits(compiles, _xmlOutputBuffer))\n"
+        $_  = "static if (!is(_xmlOutputBuffer))\n"
             . "    struct _xmlOutputBuffer;\n";
     }
 } elsif ($ARGV eq "xmlstring.d") {
-    # UTF-8 is the de-facto standard in D, so we don't need to prevent mixing XML strings with
+    # UTF-8 is the de facto standard in D, so we don't need to prevent mixing XML strings with
     # "other strings" in the program, since there are (or, at least, should be) no other strings
     # (aside from UTF-16 and UTF-32, but the type system takes care about them for us).
     s/^\s*alias\s+xmlChar\s*=\s*\Kubyte\b/char/;
@@ -70,8 +74,8 @@ if (%deps) {
     print "\n";
 }
 if ($module eq "globals") {
-    # `_xmlOutputBuffer` may be compiled out. A stub must be defined in the module in that case.
-    print "static if (!__traits(compiles, _xmlOutputBuffer))\n"
+    # `_xmlOutputBuffer` may not be compiled in. A stub must be defined in the module in that case.
+    print "static if (!is(_xmlOutputBuffer))\n"
         . "    struct _xmlOutputBuffer;\n"
         . "\n";
 }

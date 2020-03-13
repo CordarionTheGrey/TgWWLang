@@ -12,7 +12,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /* Needed for portability to Windows 64 bits */
 

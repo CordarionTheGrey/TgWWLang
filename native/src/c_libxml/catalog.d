@@ -20,7 +20,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * XML_CATALOGS_NAMESPACE:

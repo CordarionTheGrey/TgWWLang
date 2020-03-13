@@ -15,7 +15,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 struct _xmlRelaxNG;
 alias xmlRelaxNG = _xmlRelaxNG;

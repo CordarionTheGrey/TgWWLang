@@ -14,7 +14,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.stdarg;
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * xmlChar:

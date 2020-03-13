@@ -14,7 +14,7 @@ import c_libxml.xpath;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * The standard Dump routines.

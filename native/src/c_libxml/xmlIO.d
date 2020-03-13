@@ -19,7 +19,7 @@ import c_libxml.xmlversion;
 import core.stdc.config;
 import core.stdc.stdio;
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * Those are the functions and datatypes for the parser input

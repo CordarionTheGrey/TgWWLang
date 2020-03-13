@@ -13,7 +13,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * Various defines for the various Link properties.

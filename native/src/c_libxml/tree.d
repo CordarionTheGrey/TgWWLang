@@ -22,7 +22,7 @@ import c_libxml.xmlversion;
 import core.stdc.config;
 import core.stdc.stdio;
 
-extern (C):
+extern (C) nothrow:
 
 /*
  * Some of the basic types pointer to structures:
@@ -31,7 +31,7 @@ extern (C):
 alias xmlParserInputBuffer = _xmlParserInputBuffer;
 alias xmlParserInputBufferPtr = _xmlParserInputBuffer*;
 
-static if (!__traits(compiles, _xmlOutputBuffer))
+static if (!is(_xmlOutputBuffer))
     struct _xmlOutputBuffer;
 alias xmlOutputBuffer = _xmlOutputBuffer;
 alias xmlOutputBufferPtr = _xmlOutputBuffer*;

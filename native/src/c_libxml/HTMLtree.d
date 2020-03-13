@@ -14,7 +14,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * HTML_TEXT_NODE:

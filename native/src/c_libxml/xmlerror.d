@@ -11,7 +11,7 @@ import c_libxml.tree;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 /**
  * xmlErrorLevel:

@@ -16,7 +16,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C):
+extern (C) nothrow:
 
 const(xmlChar)* xmlSAX2GetPublicId(void* ctx);
 const(xmlChar)* xmlSAX2GetSystemId(void* ctx);

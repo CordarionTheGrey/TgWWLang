@@ -22,8 +22,6 @@ struct TLanguage {
 struct TValue {
     Unit[string] placeholders;
     XMLNode* node;
-
-    @disable this(this);
 }
 
 struct TString {
@@ -32,17 +30,12 @@ struct TString {
     bool gif;
     TValue[ ] values;
     XMLNode* node;
-
-    @disable this(this);
 }
 
 struct TStrings {
-    const(char)[ ] filename;
-    TLanguage summary;
+    TLanguage parameters;
     TString*[ ] strings;
     TString*[Tuple!(string, bool)] stringsAA; // [(key, deprecated)]
-    Deprecated[string] deprecatedSummary;
+    Deprecated[string] deprecatedSummary; // [key]
     XMLDoc* doc;
-
-    @disable this(this);
 }

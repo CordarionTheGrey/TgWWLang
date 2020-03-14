@@ -1,29 +1,39 @@
 import std.stdio;
-import std.string: fromStringz;
 
+import langfiles.deserializer;
 import xmlwrap;
 
-void traverse(const(XMLNode)* node) {
-    for (; node !is null; node = node.next) {
-        if (node.type == XMLElementType.elementNode)
-            writef!"<%s>:%s\n"(node.name.fromStringz(), node.line);
-        traverse(node.children);
-    }
+@system:
+
+void process(ref Deserializer ds, XMLDoc* doc) {
+    import langfiles.data;
+    import langfiles.diagnostics;
+
+    auto dc = createDiagnosticsCollector();
+    TStrings root;
+    ds.deserialize(FileID.target, doc, root, dc);
+    writeln(root.parameters);
+    foreach (str; root.strings)
+        writeln(*str);
+    writeln(dc);
 }
 
 int run(string schemaFilename, string docFilename) {
     schemaFilename ~= '\0';
     docFilename ~= '\0';
     auto loader = createLoader();
+    XMLDoc* doc;
     try {
         loader.loadSchema(schemaFilename.ptr);
-        auto doc = loader.loadDoc(docFilename.ptr); // Leaks.
-        // traverse(doc.children);
+        doc = loader.loadDoc(docFilename.ptr);
     } catch (XMLException exc) {
         foreach (e; exc.errors)
             writef!"%s: %s [%s:%s]\n"(e.line, e.msg, e.domain, e.code);
         return 1;
     }
+    auto ds = createDeserializer();
+    process(ds, doc);
+    destroyDoc(doc);
     return 0;
 }
 

@@ -2,20 +2,21 @@ module xmlwrap;
 
 import std.array: Appender, appender;
 import std.range.primitives;
-import std.typecons: Tuple;
+import std.typecons: Flag, No, Tuple;
 
 import c_libxml.parser;
 import c_libxml.tree;
 import c_libxml.xmlerror;
 import c_libxml.xmlschemas;
 
-nothrow:
+nothrow @system:
 
 alias XMLParserCtxt = xmlParserCtxt;
 alias XMLErrorDomain = xmlErrorDomain;
 alias XMLErrorCode = xmlParserErrors;
 alias XMLDoc = xmlDoc;
 alias XMLElementType = xmlElementType;
+alias XMLAttr = xmlAttr;
 alias XMLNode = xmlNode;
 alias XMLSchemaValidCtxt = xmlSchemaValidCtxt;
 
@@ -59,19 +60,31 @@ XMLParserCtxt* createParser() {
 
 alias destroyParser = xmlFreeParserCtxt;
 
-Tuple!(XMLDoc*, q{doc}, XMLError[ ], q{errors}) parseFile(
-    XMLParserCtxt* ctxt, const(char)* filename,
-) {
+struct XMLParsingResult {
+    XMLDoc* doc;
+    XMLError[ ] errors;
+}
+
+XMLParsingResult parseFile(XMLParserCtxt* ctxt, const(char)* filename)
+in {
+    assert(ctxt !is null);
+    assert(filename !is null);
+}
+do {
     auto errors = appender!(XMLError[ ]);
     ctxt._private = &errors;
     auto doc = xmlCtxtReadFile(ctxt, filename, null, 0x0);
     ctxt._private = null; // Do not leave dangling pointers.
-    return typeof(return)(doc, errors.data);
+    return XMLParsingResult(doc, errors.data);
 }
 
 alias destroyDoc = xmlFreeDoc;
 
-XMLSchemaValidCtxt* createValidator(XMLDoc* doc) {
+XMLSchemaValidCtxt* createValidator(XMLDoc* doc)
+in {
+    assert(doc !is null);
+}
+do {
     auto parserCtxt = xmlSchemaNewDocParserCtxt(doc);
     auto schema = xmlSchemaParse(parserCtxt); // Leaks.
     xmlSchemaFreeParserCtxt(parserCtxt);
@@ -84,7 +97,12 @@ struct XMLValidationResult {
     XMLError[ ] errors;
 }
 
-XMLValidationResult validateDoc(XMLSchemaValidCtxt* ctxt, XMLDoc* doc) {
+XMLValidationResult validateDoc(XMLSchemaValidCtxt* ctxt, XMLDoc* doc)
+in {
+    assert(ctxt !is null);
+    assert(doc !is null);
+}
+do {
     extern (C)
     void dupError(void* ctxt, xmlError* e)
     in {
@@ -122,11 +140,19 @@ private:
         return result.doc;
     }
 
-    public void loadSchema(const(char)* filename) {
+    public void loadSchema(const(char)* filename)
+    in {
+        assert(filename !is null);
+    }
+    do {
         _validator = createValidator(_loadDoc(filename)); // Both leak.
     }
 
-    public XMLDoc* loadDoc(const(char)* filename) {
+    public XMLDoc* loadDoc(const(char)* filename)
+    in {
+        assert(filename !is null);
+    }
+    do {
         auto doc = _loadDoc(filename);
         // Validate after parsing so that syntax errors do not get mixed with validation errors.
         // TODO: Is that really important?
@@ -139,4 +165,38 @@ private:
 
 XMLLoader createLoader() {
     return XMLLoader(createParser()); // Leaks.
+}
+
+enum isSomeNode(T) = is(typeof(T.next) == T*);
+
+struct NodeRange(T) if (isSomeNode!T) {
+nothrow pure @safe @nogc:
+    private T* _cur;
+
+    @property bool empty() const { return _cur is null; }
+
+    @property inout(NodeRange) save() inout { return this; }
+
+    @property inout(T)* front() inout
+    in {
+        assert(!empty);
+    }
+    do {
+        return _cur;
+    }
+
+    void popFront()
+    in {
+        assert(!empty);
+    }
+    do {
+        _cur = _cur.next;
+    }
+}
+
+static assert(isInputRange!(NodeRange!XMLNode));
+static assert(isForwardRange!(NodeRange!XMLNode));
+
+NodeRange!T iter(T)(T* node) pure @safe @nogc if (isSomeNode!T) {
+    return NodeRange!T(node);
 }

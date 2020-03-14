@@ -21,7 +21,7 @@ import c_libxml.xpath;
  * Author: Daniel Veillard
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /*
  * A Location Set

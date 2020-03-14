@@ -16,7 +16,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.stdio;
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /**
  * xmlURI:

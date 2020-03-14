@@ -26,7 +26,7 @@ static if (!is(_xmlOutputBuffer))
  * Author: Gary Pennington <Gary.Pennington@uk.sun.com>, Daniel Veillard
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 void xmlInitGlobals();
 void xmlCleanupGlobals();

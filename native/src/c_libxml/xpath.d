@@ -28,7 +28,7 @@ import c_libxml.xmlversion;
 import core.stdc.config;
 import core.stdc.stddef;
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /* LIBXML_XPATH_ENABLED */
 

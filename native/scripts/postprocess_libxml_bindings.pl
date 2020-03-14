@@ -12,8 +12,8 @@ s/\G *+\K\t/    /g;
 $_ = expand $_;
 # DStep sometimes imports stdlib and sometimes stddef, with no changes to the code.
 s/^\s*import\s+core\s*\.\s*stdc\s*\.\s*std\Klib\b/def/;
-# Add `nothrow` attribute to all functions and callbacks.
-s/\bextern\s*\(\s*C\s*\)\K/ nothrow/g;
+# Add `nothrow @system` attributes to all functions and callbacks.
+s'\bextern\s*\(\s*C\s*\)\K' nothrow @system'g;
 # Remove anonymous `enum` members (why does D compile them at all?).
 $_ = "" if (/^\s*enum\b/ ... /^\s*\}/) && /^\s*=/;
 if ($ARGV eq "encoding.d") {

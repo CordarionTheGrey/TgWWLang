@@ -12,7 +12,7 @@ import c_libxml.xmlversion;
  * Author: Gary Pennington <Gary.Pennington@uk.sun.com>
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 struct _xmlLink;
 alias xmlLink = _xmlLink;

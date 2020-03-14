@@ -9,7 +9,7 @@ module c_libxml.xmlexports;
  * Author: Igor Zlatovic <igor@zlatkovic.com>
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /**
  * XMLPUBFUN, XMLPUBVAR, XMLCALL

@@ -16,7 +16,7 @@ import c_libxml.xmlversion;
  * Author: William Brack <wbrack@mmm.com.hk>
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /*
  * Define our typedefs and structures

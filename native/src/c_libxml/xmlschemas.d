@@ -17,7 +17,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.config;
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /**
  * This error codes are obsolete; not used any more.

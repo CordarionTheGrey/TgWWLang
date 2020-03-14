@@ -15,7 +15,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /*
  * Most of the back-end structures from XML and HTML are shared.

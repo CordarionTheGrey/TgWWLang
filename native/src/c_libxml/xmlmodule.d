@@ -12,7 +12,7 @@ import c_libxml.xmlversion;
  * Author: Joel W. Reed
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /**
  * xmlModulePtr:

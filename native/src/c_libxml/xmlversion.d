@@ -11,7 +11,7 @@ import c_libxml.xmlexports;
  * Author: Daniel Veillard
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /*
  * use those to be sure nothing nasty will happen if

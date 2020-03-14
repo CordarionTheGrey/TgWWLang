@@ -14,7 +14,7 @@ import c_libxml.xmlversion;
  * Author: Daniel Veillard
  */
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 /* LIBXML_SAX1_ENABLED */
 

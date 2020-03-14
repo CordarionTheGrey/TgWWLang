@@ -18,7 +18,7 @@ import c_libxml.xmlversion;
 
 import core.stdc.config;
 
-extern (C) nothrow:
+extern (C) nothrow @system:
 
 enum xmlSchemaWhitespaceValueType
 {

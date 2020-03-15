@@ -307,7 +307,7 @@ def check_summary(lang, base):
         add_message(MessageCode.SAME_LANGUAGE_NAME, FileID.TARGET, a.dom.sourceline, a.name)
     if (a.base, a.variant) == (b.base, b.variant):
         add_message(MessageCode.SAME_LANGUAGE_BASE_VARIANT, FileID.TARGET, a.dom.sourceline,
-            a.name, a.variant,
+            a.base, a.variant,
         )
 
 

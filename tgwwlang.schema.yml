@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://raw.githubusercontent.com/CordarionTheGrey/TgWWLang/v0.4.0/tgwwlang.schema.json
+$id: https://raw.githubusercontent.com/CordarionTheGrey/TgWWLang/v0.4.1/tgwwlang.schema.json
 
 definitions:
   fileId:

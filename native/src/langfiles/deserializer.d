@@ -31,19 +31,18 @@ Unit[string] _findPlaceholders(const(char)[ ] value, immutable(char)*[string] sy
             s = s[2 .. $];
             continue;
         }
-        s.popFront();
         while (true) {
-            pos = s.countUntil('{', '}');
-            if (pos < 0)
+            pos = s[1 .. $].countUntil('{', '}') + 1;
+            if (!pos)
                 return result;
             if (s[pos] == '}')
                 break;
-            s = s[pos + 1 .. $];
+            s = s[pos .. $];
         }
         () @trusted {
-            const placeholderValue = s[0 .. pos].source;
+            const placeholderValue = s[0 .. pos + 1].source;
             if (const p = placeholderValue in symTable)
-                result[(*p)[0 .. pos]] = Unit._;
+                result[(*p)[0 .. pos + 1]] = Unit._;
             else {
                 const interned = placeholderValue.idup;
                 symTable[interned] = interned.ptr;
@@ -62,8 +61,8 @@ nothrow pure @safe:
 
     alias ds this;
 
-    void addMessage(DiagnosticCode code, int line, immutable(string)[ ] details) {
-        dc.messages[fid] ~= DiagnosticMessage(code, line, details);
+    void addMessage(string code)(int line, immutable(string)[ ] details) {
+        dc.addMessage!code(fid, line, details);
     }
 
     void deserializeLanguage(XMLNode* node, ref TLanguage model) @system {
@@ -83,10 +82,8 @@ nothrow pure @safe:
                         // with the same name.
                         mixin(`static immutable string[1] details` ~ prop ~ ` = [prop];`);
                         if (mixin(`model.` ~ prop).empty)
-                            addMessage(
-                                DiagnosticCode.emptyLanguageAttribute,
-                                node.line,
-                                mixin(`details` ~ prop),
+                            addMessage!q{emptyLanguageAttribute}(
+                                node.line, mixin(`details` ~ prop),
                             );
                     }
                     continue loop;
@@ -102,7 +99,7 @@ nothrow pure @safe:
             const prevStatus = *p;
             // A non-deprecated string followed by a deprecated one is OK, but not vice versa.
             if (curStatus <= prevStatus)
-                addMessage(DiagnosticCode.multipleDefinitions, str.node.line, [str.key]);
+                addMessage!q{multipleDefinitions}(str.node.line, [str.key]);
             if (curStatus != prevStatus)
                 *p = Deprecated.both;
         } else
@@ -113,7 +110,7 @@ nothrow pure @safe:
         if (const text = node.children)
             _values ~= TValue(_findPlaceholders(text.content.fromStringz(), _symTable), node);
         else {
-            addMessage(DiagnosticCode.emptyValue, node.line, [key]);
+            addMessage!q{emptyValue}(node.line, [key]);
             _values ~= TValue(null, node);
         }
     }
@@ -142,7 +139,7 @@ nothrow pure @safe:
             deserializeValue(child, key);
         }
         if (_values.data.empty)
-            addMessage(DiagnosticCode.noValues, node.line, [key]);
+            addMessage!q{noValues}(node.line, [key]);
         str.values = _values.data.dup;
         _strings ~= str;
         const aaKey = tuple(key, str.deprecated_);
@@ -198,10 +195,10 @@ public Deserializer createDeserializer() {
         _values: appender!(TValue[ ]),
         // Allocate memory for the symbol table, so that it can be passed "by value".
         _symTable: [
-            "0": &"0"[0],
-            "1": &"1"[0],
-            "2": &"2"[0],
-            "3": &"3"[0],
+            "{0}": &"{0}"[0],
+            "{1}": &"{1}"[0],
+            "{2}": &"{2}"[0],
+            "{3}": &"{3}"[0],
         ],
     };
     ds._strings.reserve(640);

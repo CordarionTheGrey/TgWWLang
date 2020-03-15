@@ -40,7 +40,13 @@ struct DiagnosticMessage {
 }
 
 struct DiagnosticsCollector {
+nothrow pure:
     Appender!(DiagnosticMessage[ ])[4] messages;
+
+    pragma(inline, true)
+    void addMessage(string code)(FileID fid, int line, immutable(string)[ ] details = null) {
+        messages[fid] ~= DiagnosticMessage(mixin(`DiagnosticCode.` ~ code), line, details);
+    }
 }
 
 DiagnosticsCollector createDiagnosticsCollector() {

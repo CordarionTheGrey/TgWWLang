@@ -3,9 +3,9 @@ import std.stdio;
 import langfiles.deserializer;
 import xmlwrap;
 
-@system:
+private @system:
 
-void process(ref Deserializer ds, XMLDoc* doc) {
+void _process(ref Deserializer ds, XMLDoc* doc) {
     import langfiles.data;
     import langfiles.diagnostics;
 
@@ -18,7 +18,7 @@ void process(ref Deserializer ds, XMLDoc* doc) {
     writeln(dc);
 }
 
-int run(string schemaFilename, string docFilename) {
+int _run(string schemaFilename, string docFilename) {
     schemaFilename ~= '\0';
     docFilename ~= '\0';
     auto loader = createLoader();
@@ -32,7 +32,7 @@ int run(string schemaFilename, string docFilename) {
         return 1;
     }
     auto ds = createDeserializer();
-    process(ds, doc);
+    _process(ds, doc);
     destroyDoc(doc);
     return 0;
 }
@@ -50,5 +50,5 @@ int main(string[ ] args) {
         stderr.writef!"Usage:\n  %s <schema> <filename>\n"(args[0]);
         return 2;
     }
-    return run(args[1], args[2]);
+    return _run(args[1], args[2]);
 }

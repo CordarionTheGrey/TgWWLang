@@ -8,6 +8,8 @@ toolchainRequirements frontend=">=2.078"
 
 dependency "tg-d" version="~>0.0.2"
 
+subConfiguration "tg-d" "openssl-1.0"
+
 targetPath "bin"
 
 buildRequirements "requireContracts"

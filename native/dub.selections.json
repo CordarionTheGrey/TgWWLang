@@ -5,7 +5,7 @@
 		"botan-math": "1.0.3",
 		"ddmp": "0.0.1-0.dev.3",
 		"diet-ng": "1.6.1",
-		"eventcore": "0.8.48",
+		"eventcore": "0.8.49",
 		"fluent-asserts": "0.12.5",
 		"libasync": "0.8.6",
 		"libdparse": "0.8.8",

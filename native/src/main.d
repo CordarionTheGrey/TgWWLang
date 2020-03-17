@@ -38,6 +38,15 @@ int _run(string schemaFilename, string docFilename) {
 }
 
 int main(string[ ] args) {
+    import std.algorithm.mutation: stripRight;
+    import std.process: environment;
+    import std.utf: byCodeUnit;
+
+    import vibe.core.args: readOption;
+    import vibe.core.core;
+    import vibe.core.stream: IOMode;
+    import vibe.http.client;
+
     version (DigitalMars) {
         import etc.linux.memoryerror;
 
@@ -46,9 +55,27 @@ int main(string[ ] args) {
     }
 
     testLibxmlVersion();
-    if (args.length != 3) {
-        stderr.writef!"Usage:\n  %s <schema> <filename>\n"(args[0]);
-        return 2;
-    }
-    return _run(args[1], args[2]);
+    string telegramURL = "https://api.telegram.org";
+    if (readOption("telegram-url", &telegramURL, "URL to use instead of https://api.telegram.org."))
+        telegramURL = telegramURL.byCodeUnit().stripRight('/').source;
+
+    telegramURL ~= "/bot";
+    telegramURL ~= environment["TG_WW_LINGUIST_BOT_TOKEN"];
+    runTask({
+        try {
+            requestHTTP(telegramURL ~ "/getMe", (scope req) { }, (scope res) {
+                ubyte[8192] buffer;
+                while (res.bodyReader.dataAvailableForRead) {
+                    write(cast(const(char)[ ])buffer[0 .. res.bodyReader.read(
+                        buffer[0 .. res.bodyReader.leastSize],
+                        IOMode.all,
+                    )]);
+                }
+                writeln();
+            });
+            writeln("Task finished");
+        } catch (Exception e)
+            stderr.writeln(e);
+    });
+    return runApplication();
 }

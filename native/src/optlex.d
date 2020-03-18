@@ -8,11 +8,11 @@ import std.utf: byCodeUnit;
 
 pure @safe:
 
-private bool _isSpace(char c) nothrow @nogc {
+bool isSpace(char c) nothrow @nogc {
     return !!c.among!(' ', '\t');
 }
 
-private bool _isQuote(char c) nothrow @nogc {
+bool isQuote(char c) nothrow @nogc {
     return !!c.among!('"', '\'');
 }
 
@@ -20,6 +20,10 @@ class OptLexException: Exception {
     mixin basicExceptionCtors;
 }
 
+// This lexer generally follows quoting rules of Unix shells (except there is no backslash
+// escaping). However, it enters "literate mode" as soon as it sees the first positional argument:
+// that argument together with the part of the string after it becomes a single token.
+// Therefore, the lexer always yields exactly one positional argument, which may be empty.
 struct OptLexSplitter {
 pure:
     private {
@@ -51,7 +55,7 @@ pure:
         import std.array: appender;
 
         _app = appender!(char[ ]);
-        _s = s.byCodeUnit().strip!(c => _isSpace(c));
+        _s = s.byCodeUnit().strip!isSpace();
         popFront();
     }
 
@@ -77,7 +81,6 @@ pure:
     }
 
     void popFront() {
-        import std.algorithm.mutation: stripRight;
         import std.algorithm.searching: find, skipOver;
 
         final switch (_state) with (_State) {
@@ -106,8 +109,8 @@ pure:
                 s.popFront();
                 break; // Option.
             }
-            if (!_isQuote(c)) {
-                assert(!_isSpace(c));
+            if (!isQuote(c)) {
+                assert(!isSpace(c));
                 return _setLiterate(); // Non-option argument.
             }
             if (s.length == 1)
@@ -127,9 +130,9 @@ pure:
         // Now we have an option ahead with its `-` stripped.
         while (!s.empty) {
             c = s.front;
-            if (_isSpace(c))
+            if (isSpace(c))
                 break; // End of option.
-            if (!_isQuote(c)) {
+            if (!isQuote(c)) {
                 s.popFront();
                 continue;
             }
@@ -161,7 +164,7 @@ pure:
             // Skip spaces between this option and the next argument.
             if (!s.empty) {
                 s.popFront();
-                s.skipOver!(c => _isSpace(c));
+                s.skipOver!isSpace();
             }
             _s = s;
             _front = option;

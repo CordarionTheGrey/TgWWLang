@@ -81,9 +81,7 @@ do {
 alias destroyDoc = xmlFreeDoc;
 
 XMLSchemaValidCtxt* createValidator(XMLDoc* doc)
-in {
-    assert(doc !is null);
-}
+in { assert(doc !is null); }
 do {
     auto parserCtxt = xmlSchemaNewDocParserCtxt(doc);
     auto schema = xmlSchemaParse(parserCtxt); // Leaks.
@@ -105,9 +103,7 @@ in {
 do {
     extern (C)
     void dupError(void* ctxt, xmlError* e)
-    in {
-        assert(ctxt !is null, "ctxt is null");
-    }
+    in { assert(ctxt !is null, "ctxt is null"); }
     do {
         _appendError(*cast(Appender!(XMLError[ ])*)ctxt, e);
     }
@@ -141,17 +137,13 @@ private:
     }
 
     public void loadSchema(const(char)* filename)
-    in {
-        assert(filename !is null);
-    }
+    in { assert(filename !is null); }
     do {
         _validator = createValidator(_loadDoc(filename)); // Both leak.
     }
 
     public XMLDoc* loadDoc(const(char)* filename)
-    in {
-        assert(filename !is null);
-    }
+    in { assert(filename !is null); }
     do {
         auto doc = _loadDoc(filename);
         // Validate after parsing so that syntax errors do not get mixed with validation errors.
@@ -178,17 +170,13 @@ nothrow pure @safe @nogc:
     @property inout(NodeRange) save() inout { return this; }
 
     @property inout(T)* front() inout
-    in {
-        assert(!empty);
-    }
+    in { assert(!empty); }
     do {
         return _cur;
     }
 
     void popFront()
-    in {
-        assert(!empty);
-    }
+    in { assert(!empty); }
     do {
         _cur = _cur.next;
     }

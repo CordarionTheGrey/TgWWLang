@@ -148,9 +148,7 @@ nothrow pure @safe:
     }
 
     void deserialize(XMLDoc* doc, ref TStrings model) @system
-    in {
-        assert(doc !is null);
-    }
+    in { assert(doc !is null); }
     do {
         import std.algorithm;
 

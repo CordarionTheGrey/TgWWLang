@@ -47,9 +47,7 @@ pure:
     @disable this();
 
     this(string s)
-    out {
-        assert(!empty); // Even `OptLexSplitter("")` yields `[""]`.
-    }
+    out { assert(!empty); } // Even `OptLexSplitter("")` yields `[""]`.
     do {
         import std.algorithm.mutation: strip;
         import std.array: appender;
@@ -68,9 +66,7 @@ pure:
     }
 
     @property string front() const nothrow @nogc
-    in {
-        assert(!empty, "Called `front` on an empty `OptLexSplitter`");
-    }
+    in { assert(!empty, "Called `front` on an empty `OptLexSplitter`"); }
     do {
         return _front;
     }

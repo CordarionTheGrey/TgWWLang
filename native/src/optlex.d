@@ -47,11 +47,11 @@ pure:
         assert(!empty); // Even `OptLexSplitter("")` yields `[""]`.
     }
     do {
-        import std.algorithm.mutation: stripLeft;
+        import std.algorithm.mutation: strip;
         import std.array: appender;
 
         _app = appender!(char[ ]);
-        _s = s.byCodeUnit().stripLeft!(c => _isSpace(c));
+        _s = s.byCodeUnit().strip!(c => _isSpace(c));
         popFront();
     }
 
@@ -72,10 +72,8 @@ pure:
     }
 
     private void _setLiterate() nothrow @nogc {
-        import std.algorithm.mutation: stripRight;
-
         _state = _State.literateArg;
-        _front = _s.stripRight!(c => _isSpace(c)).source;
+        _front = _s.source;
     }
 
     void popFront() {
@@ -171,7 +169,7 @@ pure:
                 // Special case: `--`.
                 _state = _State.doubleDash;
             }
-        } else if (needsEscapingDash) {
+        } else if (needsEscapingDash && _s.length > 1) {
             // Special case: `-`.
             // Insert double dash before this literate argument.
             _state = _State.doubleDash;
@@ -208,6 +206,14 @@ unittest {
         .equal([`-k`, `value -p 'Two words'`])
     );
     assert(
+        splitter(`--no="backslash\" escaping"`)
+        .equal([`--no=backslash\`, `escaping"`])
+    );
+    assert(
+        splitter(`--no=backslash\ escaping`)
+        .equal([`--no=backslash\`, `escaping`])
+    );
+    assert(
         splitter(` `)
         .equal([``])
     );
@@ -238,6 +244,14 @@ unittest {
     assert(
         splitter(`-abc -"" -def`)
         .equal([`-abc`, `--`, `-"" -def`])
+    );
+    assert(
+        splitter(`-abc -"" `)
+        .equal([`-abc`, `--`, `-""`])
+    );
+    assert(
+        splitter(`-abc - `)
+        .equal([`-abc`, `-`])
     );
     assertThrown!OptLexException(
         splitter(`--unclosed="quote`).each()

@@ -1,8 +1,9 @@
 module linguist.cmds.cmd;
 
+import linguist.user_request;
+
 @safe:
 
 immutable interface ICmd {
-    // TODO: Add required arguments.
-    void execute();
+    void execute(ref const UserRequest);
 }

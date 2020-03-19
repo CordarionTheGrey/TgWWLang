@@ -1,12 +1,20 @@
 module linguist.user_request;
 
-import linguist.user_message;
+import tg = tg.d;
+
+import linguist.user_text_message;
 
 @safe:
 
+// Objects of this struct must not outlive the message they refer to.
 struct UserRequest {
-    UserMessage message;
+    const(tg.Message)* message;
+    UserTextMessage textMessage;
     bool inPM;
-    // TODO: Attached file.
-    // TODO: Quoted message.
+    const(tg.Document)*[2] docs;
+
+    invariant {
+        assert(message !is null);
+        assert(docs[0] !is null || docs[1] is null);
+    }
 }

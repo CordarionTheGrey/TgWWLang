@@ -1,10 +1,10 @@
-module linguist.user_message_parser;
+module linguist.user_text_message_parser;
 
-import linguist.user_message;
+import linguist.user_text_message;
 
 pure @safe:
 
-struct UserMessageParser {
+struct UserTextMessageParser {
 pure:
     private string _selfBotName;
 
@@ -18,7 +18,7 @@ pure:
         _selfBotName = selfBotName.byCodeUnit().map!toLower().array();
     }
 
-    UserMessage parse(string text) const {
+    UserTextMessage parse(string text) const {
         import std.algorithm.mutation;
         import std.algorithm.searching;
         import std.array: appender;
@@ -26,7 +26,7 @@ pure:
         import std.utf: byCodeUnit;
         static import optlex;
 
-        UserMessage result;
+        UserTextMessage result;
         auto s0 = text.byCodeUnit();
         if (s0.skipOver('/')) {
             // Parse the command's name and recipient.
@@ -35,7 +35,7 @@ pure:
             if (s1.skipOver('@')) {
                 if (!s1.skipOver!((a, b) => a.toLower() == b)(_selfBotName.byCodeUnit())) {
                     // This message is intended for another bot; let him do the job.
-                    return UserMessage.init;
+                    return UserTextMessage.init;
                 }
                 result.personallyAddressed = true;
             }
@@ -56,11 +56,11 @@ pure:
 }
 
 unittest {
-    const parser = UserMessageParser("camelCaseBot");
-    assert(parser.parse("/start") == UserMessage(["start", ""]));
-    assert(parser.parse("/start@CamelCaseBot --verbose") == UserMessage(
+    const parser = UserTextMessageParser("camelCaseBot");
+    assert(parser.parse("/start") == UserTextMessage(["start", ""]));
+    assert(parser.parse("/start@CamelCaseBot --verbose") == UserTextMessage(
         ["start", "--verbose", ""], "", true,
     ));
-    assert(parser.parse("/start@camel_case_bot") == UserMessage.init);
-    assert(parser.parse("/start\n Extra text") == UserMessage(["start", ""], "Extra text"));
+    assert(parser.parse("/start@camel_case_bot") == UserTextMessage.init);
+    assert(parser.parse("/start\n Extra text") == UserTextMessage(["start", ""], "Extra text"));
 }

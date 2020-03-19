@@ -1,8 +1,8 @@
-module linguist.user_request;
+module linguist.user_request.data;
 
 import tg = tg.d;
 
-import linguist.user_text_message;
+import linguist.user_text_message.data;
 
 @safe:
 

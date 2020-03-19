@@ -5,7 +5,7 @@ template wraps(T) {
 
     alias _data this;
 
-    this(inout T data) inout nothrow pure @safe @nogc {
+    this(immutable T data) immutable nothrow pure @safe @nogc {
         _data = data;
     }
 }

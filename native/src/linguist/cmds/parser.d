@@ -20,6 +20,7 @@ immutable interface ITextCmdParser {
     // It exists merely for easier interaction with `getopt`.
     // The rest of the elements are zero or more options and exactly one positional argument. An
     // implementation must remove all options and leave the positional argument at index 1.
+    // An implementation must not throw when given `-h|--help` switch.
     ParseResult parse(ref string[ ] args)
     in  { assert(args.length >= 2); }
     out { assert(args.length == 2); }
@@ -28,10 +29,12 @@ immutable interface ITextCmdParser {
     }
 }
 
-GetoptResult getHelp(immutable ITextCmdParser p)
+GetoptResult getHelp(immutable ITextCmdParser p) nothrow
 in { assert(p !is null); }
 do {
+    import std.exception: assumeWontThrow;
+
     string[3] data = ["", "-h", ""];
     auto args = data[ ];
-    return p.parse(args)[0];
+    return assumeWontThrow(p.parse(args)[0]);
 }

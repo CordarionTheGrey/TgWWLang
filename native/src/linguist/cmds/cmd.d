@@ -1,6 +1,6 @@
 module linguist.cmds.cmd;
 
-import linguist.user_request;
+import linguist.user_request.data;
 
 @safe:
 

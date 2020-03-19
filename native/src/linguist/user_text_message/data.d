@@ -1,4 +1,4 @@
-module linguist.user_text_message;
+module linguist.user_text_message.data;
 
 @safe:
 

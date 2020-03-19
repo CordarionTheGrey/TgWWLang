@@ -1,10 +1,10 @@
-module linguist.user_request_parser;
+module linguist.user_request.parser;
 
 import tg = tg.d;
 
-import linguist.user_request;
-import linguist.user_text_message;
-import linguist.user_text_message_parser;
+import linguist.user_request.data;
+import linguist.user_text_message.data;
+import linguist.user_text_message.parser;
 
 @safe:
 

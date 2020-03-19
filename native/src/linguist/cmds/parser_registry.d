@@ -22,8 +22,8 @@ shared static this() nothrow {
 }
 
 public immutable(ITextCmdParser) getParser(const(char)[ ] cmdName) nothrow pure @nogc
-out (result) {
-    assert(result !is null);
+out (parser) {
+    assert(parser !is null);
 }
 do {
     import linguist.cmds.parsers.unknown;

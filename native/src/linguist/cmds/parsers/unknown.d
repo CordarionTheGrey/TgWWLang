@@ -6,7 +6,7 @@ import utils: singletonInstance;
 private @safe:
 
 final immutable class _Parser: ITextCmdParser {
-    ParseResult parse(ref string[ ] args) {
+    ParseResult parse(ref string[ ] args) nothrow pure @nogc {
         import std.getopt: GetoptResult;
         import linguist.cmds.concrete.unknown;
 

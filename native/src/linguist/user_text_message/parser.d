@@ -1,6 +1,6 @@
-module linguist.user_text_message_parser;
+module linguist.user_text_message.parser;
 
-import linguist.user_text_message;
+import linguist.user_text_message.data;
 
 pure @safe:
 

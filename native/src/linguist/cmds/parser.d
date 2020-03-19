@@ -16,16 +16,22 @@ immutable interface ITextCmdParser {
         return getopt(args, config.caseSensitive, config.bundling, opts);
     }
 
-    // The first element of the passed array is meaningless and should not be examined. It exists
-    // merely for easier interaction with `getopt`.
-    // The rest of the elements are zero or more options and exactly one positional argument.
-    // An implementation is allowed to modify the passed array in any way it wants. The caller
-    // should not expect it to be left in any particular state.
-    ParseResult parse(string[ ] args)
-    in { assert(args.length >= 2); }
+    // The first element of the passed array is meaningless and should not be examined nor modified.
+    // It exists merely for easier interaction with `getopt`.
+    // The rest of the elements are zero or more options and exactly one positional argument. An
+    // implementation must remove all options and leave the positional argument at index 1.
+    ParseResult parse(ref string[ ] args)
+    in  { assert(args.length >= 2); }
+    out { assert(args.length == 2); }
+    out (pair) {
+        assert(pair[1] !is null);
+    }
 }
 
-GetoptResult getHelp(immutable ITextCmdParser p) {
-    string[3] args = ["", "-h", ""];
+GetoptResult getHelp(immutable ITextCmdParser p)
+in { assert(p !is null); }
+do {
+    string[3] data = ["", "-h", ""];
+    auto args = data[ ];
     return p.parse(args)[0];
 }

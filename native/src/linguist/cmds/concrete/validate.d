@@ -10,7 +10,7 @@ public struct ValidateCmdParams {
     bool explicit;
 }
 
-final immutable class _ValidateCmd: ICmd {
+final immutable class _Cmd: ICmd {
     mixin wraps!ValidateCmdParams;
 
     void execute() {
@@ -19,5 +19,5 @@ final immutable class _ValidateCmd: ICmd {
 }
 
 public immutable(ICmd) createCmd(immutable ValidateCmdParams p) nothrow pure {
-    return new _ValidateCmd(p);
+    return new _Cmd(p);
 }

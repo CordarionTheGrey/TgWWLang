@@ -5,6 +5,8 @@ import std.typecons: Tuple;
 import utils;
 import xmlwrap;
 
+@safe:
+
 // One of the greatest troubles is that langfiles can contain two strings with the same key -
 // one that is marked as deprecated and another that is not. And it's perfectly legal.
 enum Deprecated: ubyte {

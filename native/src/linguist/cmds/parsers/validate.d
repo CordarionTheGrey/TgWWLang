@@ -1,18 +1,19 @@
 module linguist.cmds.parsers.validate;
 
-import linguist.cmds.concrete.validate;
 import linguist.cmds.parser;
-import utils: singleton;
+import utils: singletonInstance;
 
-@safe:
+private @safe:
 
-final immutable class ValidateParser: ITextCmdParser {
-    mixin singleton;
+final immutable class _Parser: ITextCmdParser {
+    ParseResult parse(ref string[ ] args) {
+        import linguist.cmds.concrete.validate;
 
-    ParseResult parse(string[ ] args) {
         ValidateCmdParams p = { explicit: true };
         return ParseResult(_getopt(args,
             "v|verbose", "Produce more detailed output.", &p.verbose,
         ), p.createCmd());
     }
 }
+
+public alias validateParserInstance = singletonInstance!(ITextCmdParser, _Parser);

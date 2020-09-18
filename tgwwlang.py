@@ -246,12 +246,15 @@ def load_language(fid, filename):
         # Check that `<value>`s are present and non-empty.
         values = [ ]
         for value in string.iterchildren("value"):
-            if not value.text:
+            text = (value.text or "") + "".join(
+                child.tail for child in value if child.tail is not None
+            )
+            if not text:
                 add_message(MessageCode.EMPTY_VALUE, fid, value.sourceline, key)
             values.append(Value(
                 placeholders=frozenset(
                     m.group(1)
-                    for m in re.finditer(r"(?<!\{)(?:\{\{)*(\{[^{}]*\})", value.text or "")
+                    for m in re.finditer(r"(?<!\{)(?:\{\{)*(\{[^{}]*\})", text)
                 ),
                 dom=value,
             ))

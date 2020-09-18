@@ -27,12 +27,15 @@
 """
 Usage:
     tgwwlang.py check
-        [--model <langfile>] [--json]
+        [--model <langfile>]
+        [--json] [--report <report-file>]
         [--] <langfile>
     tgwwlang.py update
-        [-i <indent>] [--move-comments] [--json] [--no-backup]
+        [-i <indent>] [--move-comments]
         [--model <langfile>] [--assign-attributes]
         [(--base <langfile> [(--add-missing [--only <keys>])] [--reorder])]
+        [--no-backup]
+        [--json] [--report <report-file>]
         [--] <langfile>
     tgwwlang.py -h
     tgwwlang.py -V
@@ -46,12 +49,13 @@ Options:
                          children of the root. Append `t` to indent with tabs.
                          [default: 2]
     --move-comments      Move external comments into `<string>` tags.
-    --json               Produce machine-readable output.
-    --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --add-missing        Copy missing strings from the base langfile.
     --only <keys>        Copy only specified strings (comma-separated).
     --reorder            Reorder strings to match the base langfile.
+    --no-backup          Do not create `.bak` file.
+    --json               Produce machine-readable output.
+    --report <file>      File to write human-readable report to.
 """
 
 from __future__ import print_function
@@ -172,7 +176,7 @@ def transform_args(args):
         "--model": schema.Or(None, os.path.isfile),
         "--base": schema.Or(None, os.path.isfile),
         "--only": schema.Or(None, schema.Use(parse_csv)),
-        str: schema.Or(bool, str),
+        str: object,
     }).validate(args)
 
 
@@ -602,13 +606,13 @@ def compose_prefix(prefix, line):
     return prefix if line == 0 else "%s:%s" % (prefix, line)
 
 
-def print_log_entry(prefix, text):
-    print(prefix, text, sep=": ")
+def print_log_entry(prefix, text, stream):
+    print(prefix, stringify(text), sep=": ", file=stream)
 
 
-def print_pretty_log(collector, lang, base, model):
+def print_pretty_log(collector, lang, base, model, stream):
     should_add_blank_line = False
-    if sys.stdout.isatty():
+    if stream.isatty():
         info_prefix = "\x1B[1;34mINFO\x1B[0m"
         warning_prefix = "\x1B[1;33mWARNING\x1B[0m"
         error_prefix = "\x1B[1;31mERROR\x1B[0m"
@@ -623,26 +627,28 @@ def print_pretty_log(collector, lang, base, model):
             continue
 
         if should_add_blank_line:
-            print()
+            print(file=stream)
         else:
             should_add_blank_line = True
-        print("%s:" % filename)
+        print("%s:" % stringify(filename), file=stream)
         missing = 0
         for code, line, details in messages:
             print_log_entry(
                 compose_prefix(info_prefix if code in INFO_MESSAGES else warning_prefix, line),
                 MESSAGE_TEMPLATES[code].format(
-                    *details, file=filename, target=lang, base=base, model=model
+                    *map(stringify, details), file=filename, target=lang, base=base, model=model
                 ),
+                stream,
             )
             missing += code == MessageCode.MISSING_STRING
         if missing != 0:
             print_log_entry(
                 info_prefix,
                 "%s missing strings." % missing if missing != 1 else "1 missing string.",
+                stream,
             )
         for line, text in errors:
-            print_log_entry(compose_prefix(error_prefix, line), text)
+            print_log_entry(compose_prefix(error_prefix, line), text, stream)
 
 
 def prepare_json_log(collector):
@@ -665,9 +671,13 @@ def main():
         sys.exit(2)
 
     ok = run(args)
-    if not args["--json"]:
-        print_pretty_log(g_collector, args["<langfile>"], args["--base"], args["--model"])
+    if args["--report"] is None:
+        report_stream = None
+    elif sys.version_info.major >= 3:
+        report_stream = open(args["--report"], "w", encoding="utf-8")
     else:
+        report_stream = open(args["--report"], "wb")
+    if args["--json"]:
         import json
 
         json.dump(
@@ -678,6 +688,13 @@ def main():
             sort_keys=True,
         )
         print()
+    elif report_stream is None:
+        report_stream = sys.stdout
+
+    if report_stream is not None:
+        print_pretty_log(
+            g_collector, args["<langfile>"], args["--base"], args["--model"], report_stream,
+        )
 
     sys.exit(0 if ok else 1)
 

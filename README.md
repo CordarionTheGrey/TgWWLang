@@ -31,12 +31,15 @@ advanced features, or just don’t have Windows, you may like this one.
 ```
 Usage:
     tgwwlang.py check
-        [--model <langfile>] [--json]
+        [--model <langfile>]
+        [--json] [--report <report-file>]
         [--] <langfile>
     tgwwlang.py update
-        [-i <indent>] [--move-comments] [--json] [--no-backup]
+        [-i <indent>] [--move-comments]
         [--model <langfile>] [--assign-attributes]
         [(--base <langfile> [(--add-missing [--only <keys>])] [--reorder])]
+        [--no-backup]
+        [--json] [--report <report-file>]
         [--] <langfile>
     tgwwlang.py -h
     tgwwlang.py -V
@@ -50,14 +53,15 @@ Options:
                          children of the root. Append `t` to indent with tabs.
                          [default: 2]
     --move-comments      Move external comments into `<string>` tags.
-    --json               Produce machine-readable output.
-    --no-backup          Do not create `.bak` file.
     --assign-attributes  Copy `<string>` attributes from the model langfile.
     --add-missing        Copy missing strings from the base langfile.
     --only <keys>        Copy only specified strings (comma-separated).
     --reorder            Reorder strings to match the base langfile.
+    --no-backup          Do not create `.bak` file.
+    --json               Produce machine-readable output.
+    --report <file>      File to write human-readable report to.
 ```
-<!-- [[[end]]] (checksum: c03bcde547b67a45a6932b3515869ab5) -->
+<!-- [[[end]]] (checksum: 0ed2993067ab83ac6f88adbf52e65822) -->
 
 
 ### Examples

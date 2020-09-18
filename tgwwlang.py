@@ -572,9 +572,14 @@ def print_log_entry(prefix, text):
 
 def print_pretty_log(collector, lang, base, model):
     should_add_blank_line = False
-    info_prefix = "\x1B[1;34mINFO\x1B[0m"
-    warning_prefix = "\x1B[1;33mWARNING\x1B[0m"
-    error_prefix = "\x1B[1;31mERROR\x1B[0m"
+    if sys.stdout.isatty():
+        info_prefix = "\x1B[1;34mINFO\x1B[0m"
+        warning_prefix = "\x1B[1;33mWARNING\x1B[0m"
+        error_prefix = "\x1B[1;31mERROR\x1B[0m"
+    else:
+        info_prefix = "INFO"
+        warning_prefix = "WARNING"
+        error_prefix = "ERROR"
     model = model or MODEL_LANGFILE
     files = ("<none>", model, base, lang)
     for filename, errors, messages in zip(files, collector.errors, collector.messages):

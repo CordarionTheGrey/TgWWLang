@@ -9,7 +9,7 @@
   </s:simpleType>
 
   <s:element name="strings">
-    <s:complexType>
+    <s:complexType mixed="true">
       <s:sequence>
         <s:element name="language">
           <s:complexType>
@@ -23,7 +23,7 @@
         </s:element>
 
         <s:element name="string" minOccurs="0" maxOccurs="unbounded">
-          <s:complexType>
+          <s:complexType mixed="true">
             <s:sequence>
               <s:element name="value" minOccurs="0" maxOccurs="unbounded" type="s:string" />
             </s:sequence>

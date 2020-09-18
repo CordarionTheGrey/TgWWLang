@@ -141,6 +141,11 @@ definitions:
         description: >-
           A string with key `details[0]` has attribute `details[1]` set to `true`, however, in model
           langfile, it is set to `false`.
+    - if: {type: array, items: [const: 21]}
+      then:
+        type: array
+        description: >-
+          There is character data in an XML tag that should not contain any text.
 
 type: object
 required: [success, annotations]

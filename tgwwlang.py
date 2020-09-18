@@ -107,6 +107,7 @@ class MessageCode:
     SAME_LANGUAGE_BASE_VARIANT = 18
     INCONSISTENT_PLACEHOLDERS  = 19
     INVALID_ATTRIBUTE          = 20
+    DANGLING_TEXT              = 21
 
 
 class Deprecated:
@@ -206,10 +207,44 @@ def is_true(value):
     return value == "true"
 
 
+def report_non_blank(fid, cur_line, text):
+    non_space_pos = -len(text.lstrip())
+    blank_lines_prefix = text.count('\n', 0, non_space_pos)
+    add_message(MessageCode.DANGLING_TEXT, fid, cur_line + blank_lines_prefix)
+    return blank_lines_prefix + text.count('\n', non_space_pos)
+
+
+def check_mixed_content(fid, root):
+    def recurse(node, cur_line):
+        cur_line = node.sourceline or cur_line
+        text = node.text
+        if text and node.tag is not etree.Comment:
+            if node.tag != "value" and not text.isspace():
+                cur_line += report_non_blank(fid, cur_line, text)
+            else:
+                cur_line += text.count('\n')
+
+        for next_node in node:
+            cur_line = recurse(next_node, cur_line)
+
+        text = node.tail
+        if text:
+            next_node = node.getparent()
+            if (next_node is None or next_node.tag != "value") and not text.isspace():
+                cur_line += report_non_blank(fid, cur_line, text)
+            else:
+                cur_line += text.count('\n')
+
+        return cur_line
+
+    recurse(root, 1)
+
+
 def load_language(fid, filename):
     tree = etree.parse(filename)
     g_xml_schema.assertValid(tree)
     root = tree.getroot()
+    check_mixed_content(fid, root)
 
     lang = root.find("language")
     summary = LanguageSummary(
@@ -557,6 +592,7 @@ MESSAGE_TEMPLATES = {
         'The language has the same `base`/`variant` as its base or model: "{0}"/"{1}".',
     MessageCode.INCONSISTENT_PLACEHOLDERS: 'Inconsistent placeholders in "{0}".',
     MessageCode.INVALID_ATTRIBUTE: '"{0}" does not have `{1}="true"` in {model}.',
+    MessageCode.DANGLING_TEXT: 'Text outside `<value>`.',
 }
 
 INFO_MESSAGES = {MessageCode.ADDED_STRING, MessageCode.CLOSED}

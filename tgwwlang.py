@@ -596,7 +596,7 @@ def print_pretty_log(collector, lang, base, model):
             print_log_entry(
                 compose_prefix(info_prefix if code in INFO_MESSAGES else warning_prefix, line),
                 MESSAGE_TEMPLATES[code].format(
-                    *details, file=filename, target=lang, base=base, model=model,
+                    *details, file=filename, target=lang, base=base, model=model
                 ),
             )
             missing += code == MessageCode.MISSING_STRING

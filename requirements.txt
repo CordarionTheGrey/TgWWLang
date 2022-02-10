@@ -1,6 +1,6 @@
-docopt~=0.6.2
-lxml~=4.4.1
-schema~=0.7.1
+docopt>=0.6.2
+lxml>=4.4.1
+schema>=0.7.1
 
 # Development requirements:
 # cogapp>=2.3
